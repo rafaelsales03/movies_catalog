@@ -1,0 +1,21 @@
+<h1>Filmes</h1>
+
+<% if user_signed_in? %>
+  <%= link_to "Novo Filme", new_movie_path, class: "btn btn-primary mb-3" %>
+<% end %>
+
+<div class="row">
+  <% @movies.each do |movie| %>
+    <div class="col-md-4 mb-3">
+      <div class="card h-100">
+        <div class="card-body">
+          <h5 class="card-title"><%= link_to movie.title, movie_path(movie) %></h5>
+          <p class="card-text"><%= truncate(movie.synopsis, length: 100) %></p>
+        </div>
+        <div class="card-footer text-muted small">
+          <%= movie.year %> • <%= movie.director %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
