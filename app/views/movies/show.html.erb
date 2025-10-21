@@ -8,3 +8,34 @@
 
   <%= button_to "Deletar esse filme", @movie, method: :delete %>
 </div>
+
+<h3>Comentários</h3>
+
+<%# Formulário %>
+<%= form_with model: [ @movie, Comment.new ], local: true do |f| %>
+  <% if !user_signed_in? %>
+    <div class="mb-3">
+      <%= f.label :name, "Nome" %>
+      <%= f.text_field :name, class: "form-control", required: true %>
+    </div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :content, "Comentário" %>
+    <%= f.text_area :content, class: "form-control", rows: 3, required: true %>
+  </div>
+
+  <%= f.submit "Postar Comentário", class: "btn btn-primary" %>
+<% end %>
+
+<%# Lista de comentários %>
+<div class="mt-4">
+  <% @movie.comments.order(created_at: :desc).each do |comment| %>
+    <div class="card mb-2">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted"><%= comment.name %> · <small><%= time_ago_in_words(comment.created_at) %> atrás</small></h6>
+        <p class="card-text"><%= comment.content %></p>
+      </div>
+    </div>
+  <% end %>
+</div>
