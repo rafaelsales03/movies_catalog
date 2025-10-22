@@ -2,6 +2,8 @@ class MoviesController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
   before_action :set_movie, only: %i[ show edit update destroy ]
 
+  rescue_from ActiveRecord::RecordNotFound, with: :movie_not_found
+
   # GET /movies or /movies.json
   def index
     @movies = Movie.order(created_at: :desc).page(params[:page]).per(6)
@@ -9,6 +11,7 @@ class MoviesController < ApplicationController
 
   # GET /movies/1 or /movies/1.json
   def show
+    @comment = Comment.new
   end
 
   # GET /movies/new
@@ -66,7 +69,15 @@ class MoviesController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_movie
-      @movie = Movie.find(params[:id])
+      if user_signed_in? && (action_name != "show")
+        @movie = current_user.movies.find(params[:id])
+      else
+        @movie = Movie.find(params[:id])
+      end
+    end
+
+    def movie_not_found
+      redirect_to movies_path, alert: "Você não tem permissão para acessar este filme."
     end
 
     # Only allow a list of trusted parameters through.

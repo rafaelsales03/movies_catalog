@@ -82,8 +82,9 @@ production:
   primary: &primary_production
     <<: *default
     database: movies_catalog_production
-    username: movies_catalog
-    password: <%= ENV["MOVIES_CATALOG_DATABASE_PASSWORD"] %>
+    username: <%= ENV.fetch("POSTGRES_USER", "postgres") %>
+    password: <%= ENV.fetch("POSTGRES_PASSWORD", "") %>
+    host: <%= ENV.fetch("POSTGRES_HOST", "localhost") %>
   cache:
     <<: *primary_production
     database: movies_catalog_production_cache
