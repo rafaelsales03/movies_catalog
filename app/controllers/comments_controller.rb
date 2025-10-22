@@ -1,11 +1,11 @@
 class CommentsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:create]
+  skip_before_action :authenticate_user!, only: [ :create ]
 
   before_action :set_movie
 
   def create
     @comment = @movie.comments.build(comment_params)
-    
+
     if user_signed_in?
       @comment.user = current_user
       @comment.name = current_user.name.presence || "Usuário sem nome"

@@ -57,7 +57,7 @@ class MoviesController < ApplicationController
   # DELETE /movies/1 or /movies/1.json
   def destroy
     authorize_movie_owner!
-    
+
     @movie.destroy!
 
     respond_to do |format|
