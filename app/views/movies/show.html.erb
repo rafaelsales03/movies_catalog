@@ -2,16 +2,33 @@
 
 <%= render @movie %>
 
-<div>
-  <%= link_to "Editar esse filme", edit_movie_path(@movie) %> |
-  <%= link_to "Voltar para filmes", movies_path %>
+<% if @movie.user == current_user %>
+  <div>
+    <%= link_to "Editar esse filme", edit_movie_path(@movie) %>
+    <%= button_to "Deletar esse filme", @movie, method: :delete %>
+  </div>
+<% end %>
 
-  <%= button_to "Deletar esse filme", @movie, method: :delete %>
+<div>
+  <%= link_to "Voltar para filmes", movies_path %>
 </div>
+
 
 <h3>Comentários</h3>
 
 <%# Formulário %>
+
+<% if @comment && @comment.errors.any? %>
+  <div class="alert alert-danger">
+    <p><strong>Não foi possível enviar o comentário:</strong></p>
+    <ul>
+      <% @comment.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
 <%= form_with model: [ @movie, Comment.new ], local: true do |f| %>
   <% if !user_signed_in? %>
     <div class="mb-3">
@@ -33,7 +50,10 @@
   <% @movie.comments.order(created_at: :desc).each do |comment| %>
     <div class="card mb-2">
       <div class="card-body">
-        <h6 class="card-subtitle mb-2 text-muted"><%= comment.name %> · <small><%= time_ago_in_words(comment.created_at) %> atrás</small></h6>
+        <h6 class="card-subtitle mb-2 text-muted">
+          <% author_name = comment.user.present? ? (comment.user.name.presence || "Usuário sem nome") : comment.name %>
+          <%= author_name %> · <small><%= time_ago_in_words(comment.created_at) %> atrás</small>
+        </h6>
         <p class="card-text"><%= comment.content %></p>
       </div>
     </div>

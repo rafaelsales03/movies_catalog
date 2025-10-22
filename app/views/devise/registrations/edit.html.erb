@@ -1,0 +1,44 @@
+<h2>Editar Perfil</h2>
+
+<% if resource.errors.any? %>
+  <div class="alert alert-danger">
+    <h4><%= pluralize(resource.errors.count, "erro") %> impedem esta atualização:</h4>
+    <ul>
+      <% resource.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <div class="mb-3">
+    <%= f.label :name, "Nome" %>
+    <%= f.text_field :name, autofocus: true, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :email %>
+    <%= f.email_field :email, class: "form-control", disabled: true %>
+  </div>
+
+  <hr>
+
+  <h5>Alterar senha</h5>
+  <div class="mb-3">
+    <%= f.label :password, "Nova senha" %>
+    <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :password_confirmation, "Confirmar nova senha" %>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= f.label :current_password, "Senha atual (obrigatória para confirmar alterações)" %>
+    <%= f.password_field :current_password, autocomplete: "current-password", class: "form-control" %>
+  </div>
+
+  <%= f.submit "Salvar alterações", class: "btn btn-primary" %>
+<% end %>
