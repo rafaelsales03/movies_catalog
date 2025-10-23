@@ -1,13 +1,17 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
-  name: MyString
-  content: MyText
-  movie: one
-  user: one
+  id: 10000
+  name: John Doe
+  content: Great movie! Highly recommended.
+  movie_id: 1000
+  user_id: 100
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
 
 two:
-  name: MyString
-  content: MyText
-  movie: two
-  user: two
+  id: 20000
+  name: Jane Smith
+  content: Classic masterpiece!
+  movie_id: 2000
+  user_id: 200
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
