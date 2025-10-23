@@ -2,6 +2,7 @@ databases:
   - name: movies_catalog_db
     databaseName: movies_catalog_production
     user: movies_catalog_db_user
+    plan: free
 
 services:
   - type: web
@@ -9,7 +10,7 @@ services:
     runtime: ruby
     plan: free
     buildCommand: bundle install && bundle exec rails assets:precompile
-    startCommand: bundle exec rails db:prepare && bundle exec puma -C config/puma.rb
+    startCommand: bundle exec rails db:migrate && bundle exec puma -C config/puma.rb
     envVars:
       - key: RAILS_ENV
         value: production
@@ -29,3 +30,7 @@ services:
         sync: false
       - key: DEVISE_MAILER_SENDER
         sync: false
+      - key: RAILS_LOG_TO_STDOUT
+        value: enabled
+      - key: RAILS_SERVE_STATIC_FILES
+        value: enabled

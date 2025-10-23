@@ -79,21 +79,9 @@ test:
 # for a full overview on how database connection configuration can be specified.
 #
 production:
-  primary: &primary_production
-    <<: *default
-    database: movies_catalog_production
-    username: <%= ENV.fetch("POSTGRES_USER", "postgres") %>
-    password: <%= ENV.fetch("POSTGRES_PASSWORD", "") %>
-    host: <%= ENV.fetch("POSTGRES_HOST", "localhost") %>
-  cache:
-    <<: *primary_production
-    database: movies_catalog_production_cache
-    migrations_paths: db/cache_migrate
-  queue:
-    <<: *primary_production
-    database: movies_catalog_production_queue
-    migrations_paths: db/queue_migrate
-  cable:
-    <<: *primary_production
-    database: movies_catalog_production_cable
-    migrations_paths: db/cable_migrate
+  # Use DATABASE_URL environment variable if available
+  url: <%= ENV['DATABASE_URL'] %>
+  # Fallback configuration if DATABASE_URL is not set
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
