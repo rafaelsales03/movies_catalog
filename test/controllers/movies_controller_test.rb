@@ -1,8 +1,12 @@
 require "test_helper"
 
 class MoviesControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @movie = movies(:one)
+    @user = users(:one)
+    sign_in @user
   end
 
   test "should get index" do
@@ -17,7 +21,15 @@ class MoviesControllerTest < ActionDispatch::IntegrationTest
 
   test "should create movie" do
     assert_difference("Movie.count") do
-      post movies_url, params: { movie: { director: @movie.director, duration: @movie.duration, synopsis: @movie.synopsis, title: @movie.title, user_id: @movie.user_id, year: @movie.year } }
+      post movies_url, params: { 
+        movie: { 
+          director: @movie.director, 
+          duration: @movie.duration, 
+          synopsis: @movie.synopsis, 
+          title: "New Test Movie", 
+          year: @movie.year 
+        } 
+      }
     end
 
     assert_redirected_to movie_url(Movie.last)
@@ -34,7 +46,15 @@ class MoviesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update movie" do
-    patch movie_url(@movie), params: { movie: { director: @movie.director, duration: @movie.duration, synopsis: @movie.synopsis, title: @movie.title, user_id: @movie.user_id, year: @movie.year } }
+    patch movie_url(@movie), params: { 
+      movie: { 
+        director: @movie.director, 
+        duration: @movie.duration, 
+        synopsis: @movie.synopsis, 
+        title: @movie.title, 
+        year: @movie.year 
+      } 
+    }
     assert_redirected_to movie_url(@movie)
   end
 
