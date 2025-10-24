@@ -8,3 +8,7 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+@import url('movies.css');
+@import url('categories.css');
+@import url('tags.css');

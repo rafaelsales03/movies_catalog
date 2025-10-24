@@ -9,7 +9,7 @@ class MoviesController < ApplicationController
     @categories = Category.ordered
     @all_directors = Movie.unique_directors
 
-    @movies = Movie.includes(:categories)
+    @movies = Movie.includes(:categories, :tags)
                    .advanced_search(filter_params)
                    .page(params[:page])
                    .per(params[:per_page] || 6)
@@ -92,7 +92,7 @@ class MoviesController < ApplicationController
     if user_signed_in? && (action_name != "show")
       @movie = current_user.movies.find(params[:id])
     else
-      @movie = Movie.includes(:categories, :comments).find(params[:id])
+      @movie = Movie.includes(:categories, :tags, :comments).find(params[:id])
     end
   end
 
@@ -101,7 +101,15 @@ class MoviesController < ApplicationController
   end
 
   def movie_params
-    params.require(:movie).permit(:title, :synopsis, :year, :duration, :director, category_ids: [])
+    params.require(:movie).permit(
+      :title,
+      :synopsis,
+      :year,
+      :duration,
+      :director,
+      :tag_list,
+      category_ids: []
+    )
   end
 
   def filter_params
@@ -113,7 +121,8 @@ class MoviesController < ApplicationController
       :year_from,
       :year_to,
       filter_categories: [],
-      filter_directors: []
+      filter_directors: [],
+      filter_tags: []
     )
   end
 
@@ -140,6 +149,14 @@ class MoviesController < ApplicationController
       if selected.any?
         category_names = @categories.where(id: selected).pluck(:name).join(", ")
         filters << "Categorias (filtro): #{category_names}"
+      end
+    end
+
+    if params[:filter_tags].present?
+      selected = params[:filter_tags].reject(&:blank?)
+      if selected.any?
+        tag_names = @all_tags.where(id: selected).pluck(:name).join(", ")
+        filters << "Tags: #{tag_names}"
       end
     end
 
