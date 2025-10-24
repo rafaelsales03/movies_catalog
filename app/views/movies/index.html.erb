@@ -22,31 +22,33 @@
       <i class="bi bi-sliders"></i> Filtros Avançados
     </button>
   </div>
-  
+
   <div class="card-body">
     <%= form_with url: movies_path, method: :get, local: true, class: "needs-validation" do |f| %>
-      
+
       <h6 class="text-muted mb-3"><i class="bi bi-search"></i> Busca Rápida</h6>
       <div class="row g-3 mb-4">
         <div class="col-md-3">
           <%= f.label :title, "Título", class: "form-label" %>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-film"></i></span>
-            <%= f.text_field :title, 
-                value: params[:title], 
-                class: "form-control", 
+            <%= f.text_field :title,
+                value: params[:title],
+                class: "form-control",
                 placeholder: "Ex: Matrix" %>
           </div>
         </div>
 
         <div class="col-md-3">
           <%= f.label :director, "Diretor", class: "form-label" %>
+
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-person"></i></span>
-            <%= f.text_field :director, 
-                value: params[:director], 
-                class: "form-control", 
+            <%= f.text_field :director,
+                value: params[:director],
+                class: "form-control",
                 placeholder: "Ex: Spielberg" %>
+
           </div>
         </div>
 
@@ -54,22 +56,25 @@
           <%= f.label :year, "Ano", class: "form-label" %>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-calendar"></i></span>
-            <%= f.number_field :year, 
-                value: params[:year], 
-                class: "form-control", 
+            <%= f.number_field :year,
+                value: params[:year],
+
+                class: "form-control",
                 placeholder: "2024",
-                min: 1888, 
+                min: 1888,
                 max: Date.current.year + 5 %>
           </div>
         </div>
 
         <div class="col-md-2">
+
           <%= f.label :category_id, "Categoria", class: "form-label" %>
           <div class="input-group">
             <span class="input-group-text"><i class="bi bi-tag"></i></span>
-            <%= f.select :category_id, 
+            <%= f.select :category_id,
                 options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
                 { include_blank: "Todas" },
+
                 class: "form-select" %>
           </div>
         </div>
@@ -79,23 +84,26 @@
             <%= f.submit "Buscar", class: "btn btn-primary" %>
             <%= link_to "Limpar", movies_path, class: "btn btn-outline-secondary" %>
           </div>
+
         </div>
       </div>
 
       <div class="collapse" id="advancedFilters">
         <hr>
         <h6 class="text-muted mb-3"><i class="bi bi-sliders"></i> Filtros Avançados</h6>
-        
+
         <div class="row g-3 mb-3">
           <div class="col-12">
             <%= f.label :filter_categories, "Filtrar por Categorias (múltipla escolha)", class: "form-label" %>
+
             <div class="border rounded p-3 bg-light">
               <div class="row g-2">
                 <% @categories.each do |category| %>
                   <div class="col-md-3 col-sm-4 col-6">
                     <div class="form-check">
-                      <%= check_box_tag 'filter_categories[]', 
-                          category.id, 
+                      <%= check_box_tag 'filter_categories[]',
+                          category.id,
+
                           params[:filter_categories]&.include?(category.id.to_s),
                           class: "form-check-input",
                           id: "filter_cat_#{category.id}" %>
@@ -106,69 +114,79 @@
               </div>
             </div>
             <small class="form-text text-muted">
-              <i class="bi bi-info-circle"></i> 
-              Selecione uma ou mais categorias para filtrar
+
+              <i class="bi bi-info-circle"></i>
+              Selecione uma ou mais categorias para filtrar (mostrará filmes que pertencem a TODAS as categorias selecionadas).
             </small>
           </div>
         </div>
 
         <div class="row g-3 mb-3">
           <div class="col-md-6">
+
             <%= f.label :year_from, "Ano (de)", class: "form-label" %>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
-              <%= f.number_field :year_from, 
-                  value: params[:year_from], 
-                  class: "form-control", 
+              <%= f.number_field :year_from,
+                  value: params[:year_from],
+                  class: "form-control",
+
                   placeholder: "Ex: 1990",
-                  min: 1888, 
+                  min: 1888,
                   max: Date.current.year + 5 %>
             </div>
           </div>
 
           <div class="col-md-6">
+
             <%= f.label :year_to, "Ano (até)", class: "form-label" %>
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
-              <%= f.number_field :year_to, 
-                  value: params[:year_to], 
-                  class: "form-control", 
+              <%= f.number_field :year_to,
+                  value: params[:year_to],
+                  class: "form-control",
+
                   placeholder: "Ex: 2024",
-                  min: 1888, 
+                  min: 1888,
                   max: Date.current.year + 5 %>
             </div>
           </div>
         </div>
 
         <div class="row g-3 mb-3">
+
           <div class="col-12">
             <%= f.label :filter_directors, "Filtrar por Diretores (múltipla escolha)", class: "form-label" %>
-            <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+            <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
               <div class="row g-2">
                 <% @all_directors.each do |director| %>
                   <div class="col-md-3 col-sm-4 col-6">
                     <div class="form-check">
-                      <%= check_box_tag 'filter_directors[]', 
-                          director, 
+
+                      <%= check_box_tag 'filter_directors[]',
+                          director,
                           params[:filter_directors]&.include?(director),
                           class: "form-check-input",
+
                           id: "filter_dir_#{director.parameterize}" %>
                       <%= label_tag "filter_dir_#{director.parameterize}", director, class: "form-check-label" %>
                     </div>
                   </div>
                 <% end %>
+
               </div>
             </div>
             <small class="form-text text-muted">
-              <i class="bi bi-info-circle"></i> 
-              Selecione um ou mais diretores para filtrar
+              <i class="bi bi-info-circle"></i>
+              Selecione um ou mais diretores para filtrar.
             </small>
           </div>
+
         </div>
 
         <div class="text-center mt-3">
-          <%= f.submit "Aplicar Filtros", class: "btn btn-success btn-lg" %>
-          <%= link_to "Limpar Todos os Filtros", movies_path, class: "btn btn-outline-danger btn-lg" %>
+          <%= f.submit "Aplicar Filtros Avançados", class: "btn btn-success" %>
+          <%= link_to "Limpar Todos os Filtros", movies_path, class: "btn btn-outline-danger" %>
         </div>
       </div>
     <% end %>
@@ -178,9 +196,9 @@
 <% if @search_performed && @active_filters.any? %>
   <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
     <strong><i class="bi bi-filter-circle-fill"></i> Filtros ativos:</strong>
-    <ul class="mb-0 mt-2">
+    <ul class="mb-0 mt-2 list-unstyled">
       <% @active_filters.each do |filter| %>
-        <li><%= filter %></li>
+        <li><small><%= filter %></small></li>
       <% end %>
     </ul>
     <%= link_to "Limpar todos os filtros", movies_path, class: "btn btn-sm btn-outline-primary mt-2" %>
@@ -194,56 +212,78 @@
       <i class="bi bi-check-circle-fill"></i>
       <%= pluralize(@total_results, "resultado encontrado", "resultados encontrados") %>
     </strong>
+     <% unless @movies.any? %>
+      <p class="mb-0 mt-2">Tente ajustar os filtros de busca ou <%= link_to "limpar todos os filtros", movies_path %>.</p>
+    <% end %>
   </div>
 <% end %>
 
-<div class="row">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
   <% @movies.each do |movie| %>
-    <div class="col-md-4 mb-4">
+    <div class="col">
       <div class="card h-100 shadow-sm hover-shadow transition">
+
+        <% if movie.poster.attached? %>
+          <%= link_to movie_path(movie) do %>
+            <%= image_tag movie.poster.variant(resize_to_fill: [400, 300]), class: "card-img-top movie-poster-index", alt: movie.title %>
+          <% end %>
+        <% else %>
+          <%= link_to movie_path(movie) do %>
+            <div class="card-img-top movie-poster-placeholder d-flex align-items-center justify-content-center bg-secondary text-white">
+              <i class="bi bi-film" style="font-size: 3rem;"></i>
+            </div>
+          <% end %>
+        <% end %>
+
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">
-            <%= link_to movie.title, movie_path(movie), class: "text-decoration-none text-primary" %>
+            <%= link_to movie.title, movie_path(movie), class: "text-decoration-none text-primary stretched-link" %>
           </h5>
-          
+
           <% if movie.categories.any? %>
             <div class="mb-2">
-              <% movie.categories.each do |category| %>
+              <% movie.categories.limit(3).each do |category| %>
                 <span class="badge bg-primary me-1"><%= category.name %></span>
+              <% end %>
+              <% if movie.categories.count > 3 %>
+                 <span class="badge bg-light text-dark me-1">+<%= movie.categories.count - 3 %></span>
               <% end %>
             </div>
           <% end %>
 
           <% if movie.tags.any? %>
-            <div class="movie-tags">
-              <% movie.tags.limit(5).each do |tag| %>
+            <div class="movie-tags mb-2">
+              <% movie.tags.limit(3).each do |tag| %>
                 <span class="movie-tag">
                   <i class="bi bi-tag-fill"></i>
                   <%= tag.name %>
                 </span>
               <% end %>
-              <% if movie.tags.count > 5 %>
+
+              <% if movie.tags.count > 3 %>
                 <span class="movie-tag">
-                  +<%= movie.tags.count - 5 %>
+                  +<%= movie.tags.count - 3 %>
                 </span>
               <% end %>
             </div>
           <% end %>
-          
-          <p class="card-text flex-grow-1 text-muted">
-            <%= truncate(movie.synopsis, length: 100) %>
+
+          <p class="card-text small text-muted flex-grow-1">
+            <%= truncate(movie.synopsis, length: 80) %>
           </p>
-          
-          <div class="card-footer bg-transparent border-0 p-0 mt-auto">
-            <small class="text-muted">
+
+          <div class="mt-auto border-top pt-2">
+            <small class="text-muted d-block">
               <i class="bi bi-calendar3"></i> <%= movie.year %>
               <% if movie.duration.present? %>
-                • <i class="bi bi-clock"></i> <%= movie.duration %> min
-              <% end %>
-              <% if movie.director.present? %>
-                <br><i class="bi bi-person-badge"></i> <%= movie.director %>
+                <span class="mx-1">•</span> <i class="bi bi-clock"></i> <%= movie.duration %> min
               <% end %>
             </small>
+            <% if movie.director.present? %>
+              <small class="text-muted d-block mt-1">
+                <i class="bi bi-person-badge"></i> <%= movie.director %>
+              </small>
+            <% end %>
           </div>
         </div>
       </div>
@@ -251,25 +291,17 @@
   <% end %>
 </div>
 
-<% if @movies.empty? %>
+<% if @movies.empty? && !@search_performed %>
   <div class="text-center py-5">
-    <% if @search_performed %>
-      <div class="alert alert-warning">
-        <i class="bi bi-search" style="font-size: 3rem;"></i>
-        <h5 class="mt-3">Nenhum filme encontrado</h5>
-        <p class="mb-3">Tente ajustar os filtros de busca</p>
-        <%= link_to "Ver todos os filmes", movies_path, class: "btn btn-primary" %>
-      </div>
-    <% else %>
       <i class="bi bi-film" style="font-size: 3rem; color: #6c757d;"></i>
       <p class="text-muted mt-3">Nenhum filme cadastrado ainda.</p>
       <% if user_signed_in? %>
         <%= link_to "Cadastrar primeiro filme", new_movie_path, class: "btn btn-primary" %>
       <% end %>
-    <% end %>
   </div>
+<% elsif @movies.empty? && @search_performed %>
 <% end %>
 
-<div class="pagination-container">
+<div class="pagination-container mt-4">
   <%= paginate @movies %>
 </div>

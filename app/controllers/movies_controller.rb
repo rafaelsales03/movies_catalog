@@ -9,7 +9,7 @@ class MoviesController < ApplicationController
     @categories = Category.ordered
     @all_directors = Movie.unique_directors
 
-    @movies = Movie.includes(:categories, :tags)
+    @movies = Movie.includes(:categories, :tags, poster_attachment: :blob)
                    .advanced_search(filter_params)
                    .page(params[:page])
                    .per(params[:per_page] || 6)
@@ -63,8 +63,12 @@ class MoviesController < ApplicationController
   def update
     authorize_movie_owner!
 
+    if params[:movie][:remove_poster] == "1"
+      @movie.poster.purge
+    end
+
     respond_to do |format|
-      if @movie.update(movie_params)
+      if @movie.update(movie_params.except(:remove_poster))
         format.html { redirect_to @movie, notice: "Filme atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @movie }
       else
@@ -90,14 +94,14 @@ class MoviesController < ApplicationController
 
   def set_movie
     if user_signed_in? && (action_name != "show")
-      @movie = current_user.movies.find(params[:id])
+      @movie = current_user.movies.includes(poster_attachment: :blob).find(params[:id])
     else
-      @movie = Movie.includes(:categories, :tags, :comments).find(params[:id])
+      @movie = Movie.includes(:categories, :tags, :comments, poster_attachment: :blob).find(params[:id])
     end
   end
 
   def movie_not_found
-    redirect_to movies_path, alert: "Você não tem permissão para acessar este filme."
+    redirect_to movies_path, alert: "Filme não encontrado ou você não tem permissão para acessá-lo."
   end
 
   def movie_params
@@ -108,6 +112,8 @@ class MoviesController < ApplicationController
       :duration,
       :director,
       :tag_list,
+      :poster,
+      :remove_poster,
       category_ids: []
     )
   end
@@ -155,7 +161,7 @@ class MoviesController < ApplicationController
     if params[:filter_tags].present?
       selected = params[:filter_tags].reject(&:blank?)
       if selected.any?
-        tag_names = @all_tags.where(id: selected).pluck(:name).join(", ")
+        tag_names = Tag.where(id: selected).pluck(:name).join(", ")
         filters << "Tags: #{tag_names}"
       end
     end

@@ -2,3 +2,4 @@
 import "controllers"
 import "categories"
 import "tags"
+import "poster_preview"
