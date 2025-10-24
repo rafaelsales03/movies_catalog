@@ -1,0 +1,63 @@
+.movie-poster-index,
+.movie-poster-placeholder {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+    display: block;
+}
+
+.movie-poster-placeholder i {
+    opacity: 0.7;
+}
+
+.movie-poster-show,
+.movie-poster-placeholder-show {
+    width: 100%;
+    height: 100%;
+    max-height: 600px;
+    object-fit: cover;
+    display: block;
+}
+
+.movie-poster-placeholder-show {
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ajuste para o card no show para layout com imagem */
+.card .row.g-0 .col-md-4 {
+    display: flex;
+}
+
+.card .img-fluid.rounded-start {
+    border-top-left-radius: var(--bs-card-inner-border-radius) !important;
+    border-bottom-left-radius: var(--bs-card-inner-border-radius) !important;
+    border-top-right-radius: 0 !important;
+}
+
+/* Essa parte g arante que o placeholder tenha o arredondamento correto */
+.movie-poster-placeholder-show.rounded-start {
+    border-top-left-radius: var(--bs-card-inner-border-radius) !important;
+    border-bottom-left-radius: var(--bs-card-inner-border-radius) !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+@media (max-width: 767.98px) {
+    .card .img-fluid.rounded-start {
+        border-bottom-left-radius: 0 !important;
+        border-top-right-radius: var(--bs-card-inner-border-radius) !important;
+    }
+
+    .movie-poster-placeholder-show.rounded-start {
+        border-bottom-left-radius: 0 !important;
+        border-top-right-radius: var(--bs-card-inner-border-radius) !important;
+    }
+
+    .movie-poster-show,
+    .movie-poster-placeholder-show {
+        max-height: 300px;
+    }
+}

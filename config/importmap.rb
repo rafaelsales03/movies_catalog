@@ -7,3 +7,4 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 
 pin "categories", to: "categories.js"
 pin "tags", to: "tags.js"
+pin "poster_preview", to: "poster_preview.js"

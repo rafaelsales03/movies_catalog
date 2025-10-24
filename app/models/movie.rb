@@ -3,6 +3,7 @@ class Movie < ApplicationRecord
   has_many :comments, dependent: :destroy
   has_and_belongs_to_many :categories
   has_and_belongs_to_many :tags
+  has_one_attached :poster
 
   validates :title, :synopsis, :year, presence: true
   validates :year, numericality: {
@@ -14,6 +15,7 @@ class Movie < ApplicationRecord
     only_integer: true,
     greater_than: 0
   }, allow_blank: true
+  validate :poster_format
 
   attr_accessor :tag_list
 
@@ -69,6 +71,7 @@ class Movie < ApplicationRecord
     end
   }
 
+
   def self.simple_search(params)
     movies = all
     movies = movies.by_title(params[:title])
@@ -111,8 +114,20 @@ class Movie < ApplicationRecord
     tag_names = @tag_list.split(",").map(&:strip).reject(&:blank?).uniq
 
     tag_names.each do |tag_name|
-      tag = Tag.find_or_create_by(name: tag_name.capitalize)
+      tag = Tag.find_or_create_by(name: tag_name)
       self.tags << tag unless self.tags.include?(tag)
+    end
+  end
+
+  def poster_format
+    return unless poster.attached?
+
+    unless poster.content_type.in?(%w[image/jpeg image/jpg image/png image/webp])
+      errors.add(:poster, "deve ser uma imagem JPEG, PNG ou WebP")
+    end
+
+    unless poster.byte_size <= 5.megabytes
+      errors.add(:poster, "deve ter no máximo 5MB")
     end
   end
 end

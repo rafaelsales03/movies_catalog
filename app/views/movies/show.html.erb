@@ -1,158 +1,162 @@
 <% content_for :title, @movie.title %>
 
 <div class="row">
-  <div class="col-lg-8 mx-auto">
+  <div class="col-lg-9 mx-auto">
+
+    <div class="mb-3">
+      <%= link_to "← Voltar para filmes", movies_path, class: "btn btn-sm btn-outline-secondary" %>
+    </div>
+
     <div class="card shadow-sm mb-4">
-      <div class="card-header bg-primary text-white">
-        <h1 class="mb-0"><%= @movie.title %></h1>
-      </div>
-      
-      <div class="card-body">
-        <% if @movie.categories.any? %>
-          <div class="mb-3">
-            <h6 class="text-muted mb-2">Categorias</h6>
-            <div>
-              <% @movie.categories.each do |category| %>
-                <span class="badge bg-primary me-1 mb-1" style="font-size: 0.9rem; padding: 0.4em 0.8em;">
-                  <%= category.name %>
-                </span>
+      <div class="row g-0">
+        <div class="col-md-4">
+          <% if @movie.poster.attached? %>
+            <%= image_tag @movie.poster.variant(resize_to_limit: [400, 600]), class: "img-fluid rounded-start movie-poster-show", alt: @movie.title %>
+          <% else %>
+            <div class="movie-poster-placeholder-show d-flex align-items-center justify-content-center bg-light text-secondary rounded-start">
+              <i class="bi bi-film" style="font-size: 5rem;"></i>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="col-md-8">
+          <div class="card-body d-flex flex-column h-100">
+            <h1 class="card-title mb-3"><%= @movie.title %></h1>
+
+            <% if @movie.categories.any? %>
+              <div class="mb-3">
+                <% @movie.categories.ordered.each do |category| %>
+                  <span class="badge bg-primary me-1 mb-1" style="font-size: 0.9rem; padding: 0.4em 0.8em;">
+                    <%= category.name %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <% if @movie.tags.any? %>
+              <div class="mb-3 movie-tags-show">
+                <h6 class="text-muted mb-2 small"><i class="bi bi-tags-fill"></i> Tags</h6>
+                <% @movie.tags.ordered.each do |tag| %>
+                  <span class="badge bg-light text-dark border me-1 mb-1">
+                     <i class="bi bi-tag-fill small"></i> <%= tag.name %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
+              <h5 class="small text-muted">Sinopse</h5>
+              <p class="card-text"><%= simple_format(@movie.synopsis) %></p>
+            </div>
+
+            <div class="row small mb-3">
+              <% if @movie.year.present? %>
+                <div class="col-6 col-sm-4 mb-2">
+                  <strong><i class="bi bi-calendar3"></i> Ano:</strong>
+                  <span class="text-muted"><%= @movie.year %></span>
+                </div>
+              <% end %>
+              <% if @movie.duration.present? %>
+                <div class="col-6 col-sm-4 mb-2">
+                  <strong><i class="bi bi-clock"></i> Duração:</strong>
+                  <span class="text-muted"><%= @movie.duration %> min</span>
+                </div>
+              <% end %>
+              <% if @movie.director.present? %>
+                <div class="col-12 col-sm-4 mb-2">
+                  <strong><i class="bi bi-person-badge"></i> Diretor:</strong>
+                  <span class="text-muted"><%= @movie.director %></span>
+                </div>
               <% end %>
             </div>
+
+            <% if user_signed_in? && @movie.user == current_user %>
+              <div class="mt-auto pt-3 border-top">
+                <div class="d-flex gap-2">
+                  <%= link_to raw('<i class="bi bi-pencil-fill"></i> Editar'), edit_movie_path(@movie), class: "btn btn-sm btn-outline-primary" %>
+                  <%= button_to raw('<i class="bi bi-trash-fill"></i> Deletar'),
+                      @movie,
+                      method: :delete,
+                      class: "btn btn-sm btn-outline-danger",
+                      form: { data: { turbo_confirm: "Tem certeza que deseja excluir este filme? Esta ação não pode ser desfeita." } } %>
+                </div>
+              </div>
+            <% end %>
           </div>
-          <hr>
-        <% end %>
-
-        <% if @movie.tags.any? %>
-          <div class="mb-3">
-            <h6 class="text-muted mb-2">
-              <i class="bi bi-tags-fill"></i> Tags
-            </h6>
-            <div class="movie-tags">
-              <% @movie.tags.ordered.each do |tag| %>
-                <span class="movie-tag">
-                  <i class="bi bi-tag-fill"></i>
-                  <%= tag.name %>
-                </span>
-              <% end %>
-            </div>
-          </div>
-          <hr>
-        <% end %>
-
-        <div class="mb-3">
-          <h5>Sinopse</h5>
-          <p class="text-muted"><%= @movie.synopsis %></p>
-        </div>
-
-        <div class="row">
-          <% if @movie.year.present? %>
-            <div class="col-md-4 mb-2">
-              <strong>Ano:</strong>
-              <p class="text-muted mb-0"><%= @movie.year %></p>
-            </div>
-          <% end %>
-
-          <% if @movie.duration.present? %>
-            <div class="col-md-4 mb-2">
-              <strong>Duração:</strong>
-              <p class="text-muted mb-0"><%= @movie.duration %> minutos</p>
-            </div>
-          <% end %>
-
-          <% if @movie.director.present? %>
-            <div class="col-md-4 mb-2">
-              <strong>Diretor:</strong>
-              <p class="text-muted mb-0"><%= @movie.director %></p>
-            </div>
-          <% end %>
         </div>
       </div>
-
-      <% if user_signed_in? && @movie.user == current_user %>
-        <div class="card-footer bg-transparent">
-          <div class="d-flex gap-2">
-            <%= link_to "Editar filme", edit_movie_path(@movie), class: "btn btn-outline-primary" %>
-            <%= button_to "Deletar filme", 
-                @movie, 
-                method: :delete,
-                class: "btn btn-outline-danger",
-                data: { turbo_confirm: "Tem certeza que deseja excluir este filme?" } %>
-          </div>
-        </div>
-      <% end %>
     </div>
 
-    <div class="mb-4">
-      <%= link_to "← Voltar para filmes", movies_path, class: "btn btn-secondary" %>
-    </div>
-
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mt-4">
       <div class="card-header bg-light">
-        <h3 class="mb-0">Comentários</h3>
+        <h3 class="mb-0 h5"><i class="bi bi-chat-dots-fill"></i> Comentários</h3>
       </div>
-      
-      <div class="card-body">
 
-      <% if @comment && @comment.errors.any? %>
-          <div class="alert alert-danger">
-            <p class="mb-2"><strong>Não foi possível enviar o comentário:</strong></p>
-            <ul class="mb-0">
+      <div class="card-body">
+        <% if @comment && @comment.errors.any? %>
+          <div class="alert alert-danger alert-dismissible fade show small" role="alert">
+            <p class="mb-1"><strong><i class="bi bi-exclamation-triangle-fill"></i> Não foi possível enviar o comentário:</strong></p>
+            <ul class="mb-0 ps-3">
               <% @comment.errors.full_messages.each do |message| %>
                 <li><%= message %></li>
               <% end %>
             </ul>
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         <% end %>
 
-        <%= form_with model: [@movie, Comment.new], local: true, class: "mb-4" do |f| %>
+        <%= form_with model: [@movie, Comment.new], local: true, class: "mb-4 border-bottom pb-4" do |f| %>
           <% if !user_signed_in? %>
             <div class="mb-3">
-              <%= f.label :name, "Nome", class: "form-label" %>
-              <%= f.text_field :name, class: "form-control", placeholder: "Seu nome", required: true %>
+              <%= f.label :name, "Nome", class: "form-label small" %>
+              <%= f.text_field :name, class: "form-control form-control-sm", placeholder: "Seu nome", required: true %>
             </div>
+          <% else %>
+             <p class="small text-muted mb-2">Comentando como: <strong><%= current_user.name %></strong></p>
           <% end %>
 
           <div class="mb-3">
-            <%= f.label :content, "Comentário", class: "form-label" %>
-            <%= f.text_area :content, class: "form-control", rows: 3, placeholder: "Escreva seu comentário...", required: true %>
+            <%= f.label :content, "Seu Comentário", class: "form-label small visually-hidden" %>
+            <%= f.text_area :content, class: "form-control form-control-sm", rows: 3, placeholder: "Escreva seu comentário aqui...", required: true %>
           </div>
 
-          <%= f.submit "Postar Comentário", class: "btn btn-primary" %>
+          <%= f.submit "Postar Comentário", class: "btn btn-primary btn-sm" %>
         <% end %>
 
-        <hr>
-
         <% if @movie.comments.any? %>
-          <h5 class="mb-3">
+          <h5 class="mb-3 small text-muted">
             <%= pluralize(@movie.comments.count, "comentário", "comentários") %>
           </h5>
-          
+
           <div class="list-group list-group-flush">
             <% @movie.comments.order(created_at: :desc).each do |comment| %>
-              <div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between align-items-start">
-                  <h6 class="mb-1">
+              <div class="list-group-item px-0 py-3">
+                <div class="d-flex w-100 justify-content-between align-items-start mb-1">
+                  <h6 class="mb-0 small">
+                    <i class="bi bi-person-circle me-1"></i>
                     <% if comment.user.present? %>
-                      <%= comment.user.name.presence || "Usuário sem nome" %>
-                      <span class="badge bg-secondary ms-1" style="font-size: 0.7rem;">Usuário registrado</span>
+                      <strong><%= comment.user.name.presence || "Usuário sem nome" %></strong>
+                      <span class="badge bg-secondary fw-normal ms-1" style="font-size: 0.7rem;">Registrado</span>
                     <% else %>
-                      <%= comment.name %>
+                      <strong><%= comment.name %></strong>
+                       <span class="badge bg-light text-dark border fw-normal ms-1" style="font-size: 0.7rem;">Visitante</span>
                     <% end %>
                   </h6>
-                  <small class="text-muted">
-                    <%= time_ago_in_words(comment.created_at) %> atrás
+                  <small class="text-muted" style="font-size: 0.8em;">
+                    <i class="bi bi-clock"></i> <%= time_ago_in_words(comment.created_at) %> atrás
                   </small>
                 </div>
-                <p class="mb-0 mt-2"><%= comment.content %></p>
+                <p class="mb-0 small ps-3"><%= simple_format(comment.content) %></p>
               </div>
             <% end %>
           </div>
         <% else %>
           <div class="text-center py-4">
-            <p class="text-muted mb-0">Seja o primeiro a comentar este filme!</p>
+            <p class="text-muted mb-0 small"><i class="bi bi-chat-left-dots"></i> Seja o primeiro a comentar este filme!</p>
           </div>
         <% end %>
       </div>
     </div>
+
   </div>
 </div>
