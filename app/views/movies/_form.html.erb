@@ -1,42 +1,90 @@
 <%= form_with(model: movie) do |form| %>
   <% if movie.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(movie.errors.count, "error") %> Proibiu este filme de ser salvo:</h2>
-
-      <ul>
-        <% movie.errors.each do |error| %>
-          <li><%= error.full_message %></li>
+    <div class="alert alert-danger">
+      <h4><%= pluralize(movie.errors.count, "erro") %> impedem o salvamento:</h4>
+      <ul class="mb-0">
+        <% movie.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
         <% end %>
       </ul>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :title, style: "display: block" %>
-    <%= form.text_field :title %>
+  <div class="mb-3">
+    <%= form.label :title, "Título", class: "form-label" %>
+    <%= form.text_field :title, class: "form-control", placeholder: "Digite o título do filme" %>
   </div>
 
-  <div>
-    <%= form.label :synopsis, style: "display: block" %>
-    <%= form.textarea :synopsis %>
+  <div class="mb-3">
+    <%= form.label :synopsis, "Sinopse", class: "form-label" %>
+    <%= form.text_area :synopsis, class: "form-control", rows: 4, placeholder: "Descreva a sinopse do filme" %>
   </div>
 
-  <div>
-    <%= form.label :year, style: "display: block" %>
-    <%= form.number_field :year %>
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <%= form.label :year, "Ano", class: "form-label" %>
+      <%= form.number_field :year, class: "form-control", placeholder: "Ex: 2024", min: 1888, max: Date.current.year + 5 %>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <%= form.label :duration, "Duração (minutos)", class: "form-label" %>
+      <%= form.number_field :duration, class: "form-control", placeholder: "Ex: 120", min: 1 %>
+    </div>
+    
+    <div class="col-md-4 mb-3">
+      <%= form.label :director, "Diretor", class: "form-label" %>
+      <%= form.text_field :director, class: "form-control", placeholder: "Nome do diretor" %>
+    </div>
   </div>
 
-  <div>
-    <%= form.label :duration, style: "display: block" %>
-    <%= form.number_field :duration %>
+  <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <%= form.label :category_ids, "Categorias", class: "form-label mb-0" %>
+      <%= link_to "Gerenciar categorias", categories_path, class: "btn btn-sm btn-outline-secondary", target: "_blank" %>
+    </div>
+    
+    <% if @categories.any? %>
+      <div class="border rounded p-3 bg-light">
+        <div class="row g-2" id="categories-container">
+          <% @categories.each do |category| %>
+            <div class="col-md-3 col-sm-4 col-6">
+              <label class="category-checkbox-label">
+                <%= check_box_tag 'movie[category_ids][]', 
+                    category.id, 
+                    movie.category_ids.include?(category.id),
+                    class: "category-checkbox",
+                    id: "category_#{category.id}" %>
+                <span class="category-button <%= 'active' if movie.category_ids.include?(category.id) %>">
+                  <%= category.name %>
+                </span>
+              </label>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Campo hidden para garantir que categorias possam ser desmarcadas todas -->
+        <%= hidden_field_tag 'movie[category_ids][]', '' %>
+      </div>
+      
+      <div id="selected-categories">
+        <% if movie.categories.any? %>
+          <strong>Selecionadas:</strong> <span id="selected-list"><%= movie.categories.map(&:name).join(", ") %></span>
+        <% else %>
+          <span id="no-selection">Clique nos botões para selecionar as categorias do filme.</span>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-warning">
+        <small>
+          Nenhuma categoria cadastrada ainda. 
+          <%= link_to "Criar primeira categoria", new_category_path, target: "_blank" %>
+        </small>
+      </div>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :director, style: "display: block" %>
-    <%= form.text_field :director %>
-  </div>
-
-  <div>
-    <%= form.submit %>
+  <div class="d-flex gap-2">
+    <%= form.submit "Salvar Filme", class: "btn btn-primary" %>
+    <%= link_to "Cancelar", movie.persisted? ? movie_path(movie) : movies_path, class: "btn btn-secondary" %>
   </div>
 <% end %>

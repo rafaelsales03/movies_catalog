@@ -6,7 +6,8 @@ class MoviesController < ApplicationController
 
   # GET /movies or /movies.json
   def index
-    @movies = Movie.order(created_at: :desc).page(params[:page]).per(6)
+    @movies = Movie.includes(:categories).order(created_at: :desc).page(params[:page]).per(6)
+    @categories = Category.ordered
   end
 
   # GET /movies/1 or /movies/1.json
@@ -17,11 +18,13 @@ class MoviesController < ApplicationController
   # GET /movies/new
   def new
     @movie = current_user.movies.build
+    @categories = Category.ordered
   end
 
   # GET /movies/1/edit
   def edit
     authorize_movie_owner!
+    @categories = Category.ordered
   end
 
   # POST /movies or /movies.json
@@ -33,6 +36,7 @@ class MoviesController < ApplicationController
         format.html { redirect_to @movie, notice: "Filme criado com sucesso." }
         format.json { render :show, status: :created, location: @movie }
       else
+        @categories = Category.ordered
         format.html { render :new, status: :unprocessable_entity }
         format.json { render json: @movie.errors, status: :unprocessable_entity }
       end
@@ -48,6 +52,7 @@ class MoviesController < ApplicationController
         format.html { redirect_to @movie, notice: "Filme atualizado com sucesso.", status: :see_other }
         format.json { render :show, status: :ok, location: @movie }
       else
+        @categories = Category.ordered
         format.html { render :edit, status: :unprocessable_entity }
         format.json { render json: @movie.errors, status: :unprocessable_entity }
       end
@@ -72,7 +77,7 @@ class MoviesController < ApplicationController
       if user_signed_in? && (action_name != "show")
         @movie = current_user.movies.find(params[:id])
       else
-        @movie = Movie.find(params[:id])
+        @movie = Movie.includes(:categories).find(params[:id])
       end
     end
 
@@ -82,7 +87,7 @@ class MoviesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def movie_params
-      params.require(:movie).permit(:title, :synopsis, :year, :duration, :director)
+      params.require(:movie).permit(:title, :synopsis, :year, :duration, :director, category_ids: [])
     end
 
     def authorize_movie_owner!
