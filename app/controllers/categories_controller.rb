@@ -20,7 +20,7 @@ class CategoriesController < ApplicationController
     @category = Category.new(category_params)
 
     if @category.save
-      redirect_to categories_path, notice: "Categoria criada com sucesso."
+      redirect_to categories_path, notice: t("flash.categories.created")
     else
       render :new, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class CategoriesController < ApplicationController
   # PATCH/PUT /categories/:id
   def update
     if @category.update(category_params)
-      redirect_to categories_path, notice: "Categoria atualizada com sucesso."
+      redirect_to categories_path, notice: t("flash.categories.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -38,7 +38,7 @@ class CategoriesController < ApplicationController
   # DELETE /categories/:id
   def destroy
     @category.destroy!
-    redirect_to categories_path, notice: "Categoria excluída com sucesso.", status: :see_other
+    redirect_to categories_path, notice: t("flash.categories.deleted"), status: :see_other
   end
 
   private

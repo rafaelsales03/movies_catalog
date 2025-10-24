@@ -11,16 +11,23 @@ function initializeTagsInput() {
 
     if (!input || !tagsList || !hiddenInput) return;
 
+    // --- Ler mensagens traduzidas dos data attributes ---
+    const messages = {
+        tagTooShort: input.dataset.tagTooShortMessage || 'Tag must be at least 2 characters',
+        tagTooLong: input.dataset.tagTooLongMessage || 'Tag must be at most 50 characters',
+        tagDuplicate: input.dataset.tagDuplicateMessage || 'This tag has already been added',
+        tagLimitReached: input.dataset.tagLimitReachedMessage || 'You can add a maximum of 20 tags',
+        ariaRemoveLabel: input.dataset.ariaRemoveLabel || 'Remove tag'
+    };
+
     let tags = [];
 
-    // Quando a página carrega, pega as tags que já estão guardadas em um campo hidden (campo oculto de formulário)
     if (hiddenInput.value) {
         const existingTags = hiddenInput.value.split(',').map(t => t.trim()).filter(t => t);
         tags = [...new Set(existingTags)];
         renderTags();
     }
 
-    // Adiciona tag ao pressionar Enter ou vírgula
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ',') {
             e.preventDefault();
@@ -28,14 +35,13 @@ function initializeTagsInput() {
         }
     });
 
-    // Se o campo tiver algo digitado, ele adiciona como tag automaticamente quando o usuário sai do campo de texto.
     input.addEventListener('blur', () => {
+        // Adiciona a tag se houver algo no input, mesmo que não seja Enter/vírgula
         if (input.value.trim()) {
             addTag();
         }
     });
 
-    // Permite clicar no container para focar o input
     container.addEventListener('click', (e) => {
         if (e.target === container || e.target === tagsList) {
             input.focus();
@@ -44,36 +50,31 @@ function initializeTagsInput() {
 
     function addTag() {
         const tagName = input.value.trim();
-
         if (!tagName) return;
 
         const normalizedTag = normalizeTagName(tagName);
 
-        // aqui valida comprimento
         if (normalizedTag.length < 2) {
-            showError('A tag deve ter pelo menos 2 caracteres');
+            showError(messages.tagTooShort);
             return;
         }
 
         if (normalizedTag.length > 50) {
-            showError('A tag deve ter no máximo 50 caracteres');
+            showError(messages.tagTooLong);
             return;
         }
 
-        // Verifica duplicação
-        if (tags.includes(normalizedTag)) {
-            showError('Esta tag já foi adicionada');
+        if (tags.some(t => t.toLowerCase() === normalizedTag.toLowerCase())) {
+            showError(messages.tagDuplicate);
             input.value = '';
             return;
         }
 
-        // aqui ele limita a quantidade de tags
         if (tags.length >= 20) {
-            showError('Você pode adicionar no máximo 20 tags');
+            showError(messages.tagLimitReached);
             return;
         }
 
-        // Adiciona a tag
         tags.push(normalizedTag);
         input.value = '';
         renderTags();
@@ -88,25 +89,24 @@ function initializeTagsInput() {
 
     function renderTags() {
         tagsList.innerHTML = '';
-
         tags.forEach(tagName => {
             const tagBadge = document.createElement('span');
             tagBadge.className = 'tag-badge';
             tagBadge.innerHTML = `
                 <span>${escapeHtml(tagName)}</span>
-                <button type="button" class="tag-remove" data-tag="${escapeHtml(tagName)}" aria-label="Remover tag">
+                <button type="button" class="tag-remove" data-tag="${escapeHtml(tagName)}" aria-label="${messages.ariaRemoveLabel}">
                     ×
                 </button>
             `;
 
             const removeBtn = tagBadge.querySelector('.tag-remove');
-            removeBtn.addEventListener('click', () => {
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Impede que o clique no botão foque o input
                 removeTag(tagName);
             });
 
             tagsList.appendChild(tagBadge);
         });
-
         updateCounter();
     }
 
@@ -121,7 +121,9 @@ function initializeTagsInput() {
         const count = tags.length;
         const maxTags = 20;
 
-        counter.textContent = `${count}/${maxTags} tags`;
+        const counterFormat = counter.dataset.counterFormat || '%{count}/%{max} tags';
+        counter.textContent = counterFormat.replace('%{count}', count).replace('%{max}', maxTags);
+
 
         counter.classList.remove('warning', 'error');
         if (count >= maxTags) {
@@ -132,9 +134,12 @@ function initializeTagsInput() {
     }
 
     function normalizeTagName(name) {
+        // Capitaliza a primeira letra de cada palavra
         return name
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .toLowerCase() // Primeiro tudo minúsculo para consistência
+            .split(/[\s,]+/) // Divide por espaço ou vírgula
+            .filter(word => word.length > 0)
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
             .join(' ');
     }
 
@@ -145,7 +150,10 @@ function initializeTagsInput() {
     }
 
     function showError(message) {
-        const existingError = container.querySelector('.tag-error');
+        const containerParent = container.parentElement;
+        if (!containerParent) return;
+
+        const existingError = containerParent.querySelector('.tag-error');
         if (existingError) {
             existingError.remove();
         }
@@ -153,15 +161,27 @@ function initializeTagsInput() {
         const errorDiv = document.createElement('div');
         errorDiv.className = 'tag-error alert alert-danger alert-dismissible fade show mt-2';
         errorDiv.style.fontSize = '0.875rem';
+        errorDiv.setAttribute('role', 'alert');
+        const closeButtonLabel = container.dataset.closeLabel || 'Close';
         errorDiv.innerHTML = `
             ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="${closeButtonLabel}"></button>
         `;
 
-        container.parentElement.appendChild(errorDiv);
+        // Insere o erro logo após o container de input de tags
+        container.insertAdjacentElement('afterend', errorDiv);
+
 
         setTimeout(() => {
-            errorDiv.remove();
-        }, 3000);
+            if (errorDiv) {
+                errorDiv.style.transition = 'opacity 0.5s ease';
+                errorDiv.style.opacity = '0';
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 500);
+            }
+        }, 5000);
     }
+
+    updateCounter();
 }
