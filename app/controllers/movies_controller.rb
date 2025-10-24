@@ -1,28 +1,32 @@
-# app/controllers/movies_controller.rb
 class MoviesController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
-  before_action :set_movie, only: %i[ show edit update destroy ]
+  before_action :set_movie, only: %i[show edit update destroy]
 
   rescue_from ActiveRecord::RecordNotFound, with: :movie_not_found
 
-  # GET /movies or /movies.json
+  # GET /movies
   def index
-    @movies = Movie.includes(:categories)
-                   .by_title(params[:title])
-                   .by_director(params[:director])
-                   .by_year(params[:year])
-                   .by_category(params[:category_id])
-                   .order(created_at: :desc)
-                   .page(params[:page])
-                   .per(6)
-
     @categories = Category.ordered
+    @all_directors = Movie.unique_directors
 
-    @search_performed = params[:title].present? || params[:director].present? ||
-                       params[:year].present? || params[:category_id].present?
+    @movies = Movie.includes(:categories)
+                   .advanced_search(filter_params)
+                   .page(params[:page])
+                   .per(params[:per_page] || 6)
+
+    @search_performed = filter_params.values.any? do |value|
+      if value.is_a?(Array)
+        value.reject(&:blank?).any?
+      else
+        value.present?
+      end
+    end
+
+    @total_results = @movies.total_count
+    @active_filters = build_active_filters
   end
 
-  # GET /movies/1 or /movies/1.json
+  # GET /movies/1
   def show
     @comment = Comment.new
   end
@@ -39,7 +43,7 @@ class MoviesController < ApplicationController
     @categories = Category.ordered
   end
 
-  # POST /movies or /movies.json
+  # POST /movies
   def create
     @movie = current_user.movies.build(movie_params)
 
@@ -55,7 +59,7 @@ class MoviesController < ApplicationController
     end
   end
 
-  # PATCH/PUT /movies/1 or /movies/1.json
+  # PATCH/PUT /movies/1
   def update
     authorize_movie_owner!
 
@@ -71,10 +75,9 @@ class MoviesController < ApplicationController
     end
   end
 
-  # DELETE /movies/1 or /movies/1.json
+  # DELETE /movies/1
   def destroy
     authorize_movie_owner!
-
     @movie.destroy!
 
     respond_to do |format|
@@ -85,25 +88,75 @@ class MoviesController < ApplicationController
 
   private
 
-    def set_movie
-      if user_signed_in? && (action_name != "show")
-        @movie = current_user.movies.find(params[:id])
-      else
-        @movie = Movie.includes(:categories).find(params[:id])
+  def set_movie
+    if user_signed_in? && (action_name != "show")
+      @movie = current_user.movies.find(params[:id])
+    else
+      @movie = Movie.includes(:categories, :comments).find(params[:id])
+    end
+  end
+
+  def movie_not_found
+    redirect_to movies_path, alert: "Você não tem permissão para acessar este filme."
+  end
+
+  def movie_params
+    params.require(:movie).permit(:title, :synopsis, :year, :duration, :director, category_ids: [])
+  end
+
+  def filter_params
+    params.permit(
+      :title,
+      :director,
+      :year,
+      :category_id,
+      :year_from,
+      :year_to,
+      filter_categories: [],
+      filter_directors: []
+    )
+  end
+
+  def authorize_movie_owner!
+    unless @movie.user == current_user
+      redirect_to movies_path, alert: "Você não está autorizado a realizar esta ação."
+    end
+  end
+
+  def build_active_filters
+    filters = []
+
+    filters << "Título: #{params[:title]}" if params[:title].present?
+    filters << "Diretor: #{params[:director]}" if params[:director].present?
+    filters << "Ano: #{params[:year]}" if params[:year].present?
+
+    if params[:category_id].present?
+      category = @categories.find_by(id: params[:category_id])
+      filters << "Categoria: #{category.name}" if category
+    end
+
+    if params[:filter_categories].present?
+      selected = params[:filter_categories].reject(&:blank?)
+      if selected.any?
+        category_names = @categories.where(id: selected).pluck(:name).join(", ")
+        filters << "Categorias (filtro): #{category_names}"
       end
     end
 
-    def movie_not_found
-      redirect_to movies_path, alert: "Você não tem permissão para acessar este filme."
+    if params[:year_from].present? || params[:year_to].present?
+      year_range = []
+      year_range << "de #{params[:year_from]}" if params[:year_from].present?
+      year_range << "até #{params[:year_to]}" if params[:year_to].present?
+      filters << "Período: #{year_range.join(' ')}"
     end
 
-    def movie_params
-      params.require(:movie).permit(:title, :synopsis, :year, :duration, :director, category_ids: [])
-    end
-
-    def authorize_movie_owner!
-      unless @movie.user == current_user
-        redirect_to movies_path, alert: "Você não está autorizado a realizar esta ação."
+    if params[:filter_directors].present?
+      selected = params[:filter_directors].reject(&:blank?)
+      if selected.any?
+        filters << "Diretores (filtro): #{selected.join(', ')}"
       end
     end
+
+    filters
+  end
 end
