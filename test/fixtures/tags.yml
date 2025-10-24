@@ -1,0 +1,29 @@
+classic:
+  id: 1
+  name: "Clássico"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
+
+cult:
+  id: 2
+  name: "Cult"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
+
+award_winning:
+  id: 3
+  name: "Premiado"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
+
+based_on_true_story:
+  id: 4
+  name: "Baseado Em Fatos Reais"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>
+
+blockbuster:
+  id: 5
+  name: "Blockbuster"
+  created_at: <%= Time.now %>
+  updated_at: <%= Time.now %>

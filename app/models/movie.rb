@@ -2,6 +2,7 @@ class Movie < ApplicationRecord
   belongs_to :user
   has_many :comments, dependent: :destroy
   has_and_belongs_to_many :categories
+  has_and_belongs_to_many :tags
 
   validates :title, :synopsis, :year, presence: true
   validates :year, numericality: {
@@ -13,6 +14,10 @@ class Movie < ApplicationRecord
     only_integer: true,
     greater_than: 0
   }, allow_blank: true
+
+  attr_accessor :tag_list
+
+  after_save :sync_tags
 
   scope :by_title, ->(title) {
     where("LOWER(title) LIKE ?", "%#{sanitize_sql_like(title.to_s.downcase)}%") if title.present?
@@ -29,7 +34,6 @@ class Movie < ApplicationRecord
   scope :by_category, ->(category_id) {
     joins(:categories).where(categories: { id: category_id }).distinct if category_id.present?
   }
-
 
   scope :by_categories, ->(category_ids) {
     if category_ids.present? && category_ids.is_a?(Array)
@@ -91,5 +95,24 @@ class Movie < ApplicationRecord
       .distinct
       .pluck(:director)
       .sort
+  end
+
+  def tag_list
+    @tag_list || tags.pluck(:name).join(", ")
+  end
+
+  private
+
+  def sync_tags
+    return unless @tag_list
+
+    self.tags.clear
+
+    tag_names = @tag_list.split(",").map(&:strip).reject(&:blank?).uniq
+
+    tag_names.each do |tag_name|
+      tag = Tag.find_or_create_by(name: tag_name.capitalize)
+      self.tags << tag unless self.tags.include?(tag)
+    end
   end
 end

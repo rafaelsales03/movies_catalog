@@ -2,14 +2,12 @@
 
 <div class="row">
   <div class="col-lg-8 mx-auto">
-    <!-- Card principal do filme -->
     <div class="card shadow-sm mb-4">
       <div class="card-header bg-primary text-white">
         <h1 class="mb-0"><%= @movie.title %></h1>
       </div>
       
       <div class="card-body">
-        <!-- Categorias -->
         <% if @movie.categories.any? %>
           <div class="mb-3">
             <h6 class="text-muted mb-2">Categorias</h6>
@@ -24,13 +22,28 @@
           <hr>
         <% end %>
 
-        <!-- Sinopse -->
+        <% if @movie.tags.any? %>
+          <div class="mb-3">
+            <h6 class="text-muted mb-2">
+              <i class="bi bi-tags-fill"></i> Tags
+            </h6>
+            <div class="movie-tags">
+              <% @movie.tags.ordered.each do |tag| %>
+                <span class="movie-tag">
+                  <i class="bi bi-tag-fill"></i>
+                  <%= tag.name %>
+                </span>
+              <% end %>
+            </div>
+          </div>
+          <hr>
+        <% end %>
+
         <div class="mb-3">
           <h5>Sinopse</h5>
           <p class="text-muted"><%= @movie.synopsis %></p>
         </div>
 
-        <!-- Informações do filme -->
         <div class="row">
           <% if @movie.year.present? %>
             <div class="col-md-4 mb-2">
@@ -55,7 +68,6 @@
         </div>
       </div>
 
-      <!-- Ações (editar/deletar) -->
       <% if user_signed_in? && @movie.user == current_user %>
         <div class="card-footer bg-transparent">
           <div class="d-flex gap-2">
@@ -70,20 +82,18 @@
       <% end %>
     </div>
 
-    <!-- Botão voltar -->
     <div class="mb-4">
       <%= link_to "← Voltar para filmes", movies_path, class: "btn btn-secondary" %>
     </div>
 
-    <!-- Seção de Comentários -->
     <div class="card shadow-sm">
       <div class="card-header bg-light">
         <h3 class="mb-0">Comentários</h3>
       </div>
       
       <div class="card-body">
-        <!-- Formulário de novo comentário -->
-        <% if @comment && @comment.errors.any? %>
+
+      <% if @comment && @comment.errors.any? %>
           <div class="alert alert-danger">
             <p class="mb-2"><strong>Não foi possível enviar o comentário:</strong></p>
             <ul class="mb-0">
@@ -112,7 +122,6 @@
 
         <hr>
 
-        <!-- Lista de comentários -->
         <% if @movie.comments.any? %>
           <h5 class="mb-3">
             <%= pluralize(@movie.comments.count, "comentário", "comentários") %>
