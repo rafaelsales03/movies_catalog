@@ -1,29 +1,28 @@
 <%= form_with(model: movie) do |form| %>
   <% if movie.errors.any? %>
-    <div class="alert alert-danger">
-      <h4><%= pluralize(movie.errors.count, "erro") %> impedem o salvamento:</h4>
-      <ul class="mb-0">
+    <div class="alert alert-danger alert-dismissible fade show">
+      <h4 class="alert-heading h5"><%= t('.errors_title', count: movie.errors.count) %></h4>
+      <ul class="mb-0 small">
         <% movie.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<%= t('helpers.bootstrap.close_label', default: 'Close') %>"></button>
     </div>
   <% end %>
 
   <div class="mb-3">
-    <%= form.label :poster, "Pôster do Filme", class: "form-label" %>
+    <%= form.label :poster, t('.poster_label'), class: "form-label" %>
 
-    <% if movie.poster.attached? %>
-      <div class="mb-3">
-        <p class="text-muted mb-2">Pôster atual:</p>
+    <% if movie.persisted? && movie.poster.attached? %>
+      <div class="mb-3 current-poster-section">
+        <p class="text-muted mb-2"><%= t('.current_poster') %></p>
         <div class="card" style="max-width: 200px;">
           <div class="card-body p-2">
             <%= image_tag movie.poster.variant(resize_to_limit: [200, 300]), class: "img-fluid rounded", alt: movie.title %>
-            <div class="form-check mt-2">
-              <%= check_box_tag 'movie[remove_poster]', "1", false,
-                  class: "form-check-input",
-                  id: "remove_poster_checkbox" %>
-              <%= label_tag :remove_poster_checkbox, "Remover pôster atual", class: "form-check-label" %>
+            <div class="form-check mt-2 form-switch">
+              <%= check_box_tag 'remove_poster_flag', "1", false, class: "form-check-input", id: "remove_poster_checkbox", role: "switch" %>
+              <%= label_tag :remove_poster_checkbox, t('.remove_poster'), class: "form-check-label small" %>
             </div>
           </div>
         </div>
@@ -33,125 +32,131 @@
     <%= form.file_field :poster,
         class: "form-control",
         accept: "image/png,image/jpeg,image/jpg,image/webp",
-        id: "poster_input" %>
-    <div class="form-text">
+        id: "poster_input",
+        data: {
+          invalid_format_message: t('activerecord.errors.models.movie.attributes.poster.content_type'),
+          size_limit_message: t('activerecord.errors.models.movie.attributes.poster.size'),
+          load_error_message: t('js.poster_preview.load_error', default: 'Erro ao carregar a imagem. Tente novamente.')
+        }
+    %>
+    <div class="form-text small">
       <i class="bi bi-info-circle"></i>
-      Formatos aceitos: PNG, JPEG, WebP. Tamanho máximo: 5MB.
+      <%= t('.poster_formats') %> <%= t('.poster_size') %>
     </div>
 
     <div id="poster_preview" class="mt-3" style="display: none; max-width: 200px;">
-      <p class="text-muted mb-1">Pré-visualização:</p>
+      <p class="text-muted mb-1"><%= t('.poster_preview') %></p>
       <div class="card">
         <div class="card-body p-2">
-          <img id="poster_preview_image" class="img-fluid rounded" alt="Pré-visualização">
+          <img id="poster_preview_image" class="img-fluid rounded" alt="<%= t('.poster_preview') %>">
         </div>
       </div>
     </div>
   </div>
 
   <div class="mb-3">
-    <%= form.label :title, "Título", class: "form-label" %>
-    <%= form.text_field :title, class: "form-control", placeholder: "Digite o título do filme", required: true %>
+    <%= form.label :title, t('.title_label'), class: "form-label" %>
+    <%= form.text_field :title, class: "form-control", placeholder: t('.title_placeholder'), required: true %>
   </div>
 
   <div class="mb-3">
-    <%= form.label :synopsis, "Sinopse", class: "form-label" %>
-    <%= form.text_area :synopsis, class: "form-control", rows: 4, placeholder: "Descreva a sinopse do filme", required: true %>
+    <%= form.label :synopsis, t('.synopsis_label'), class: "form-label" %>
+    <%= form.text_area :synopsis, class: "form-control", rows: 4, placeholder: t('.synopsis_placeholder'), required: true %>
   </div>
-
 
   <div class="row">
     <div class="col-md-4 mb-3">
-      <%= form.label :year, "Ano", class: "form-label" %>
-      <%= form.number_field :year, class: "form-control", placeholder: "Ex: 2024", min: 1888, max: Date.current.year + 5, required: true %>
+      <%= form.label :year, t('.year_label'), class: "form-label" %>
+      <%= form.number_field :year, class: "form-control", placeholder: t('.year_placeholder'), min: 1888, max: Date.current.year + 5, required: true %>
     </div>
 
     <div class="col-md-4 mb-3">
-      <%= form.label :duration, "Duração (minutos)", class: "form-label" %>
-      <%= form.number_field :duration, class: "form-control", placeholder: "Ex: 120", min: 1 %>
+      <%= form.label :duration, t('.duration_label'), class: "form-label" %>
+      <div class="input-group">
+         <%= form.number_field :duration, class: "form-control", placeholder: t('.duration_placeholder'), min: 1 %>
+         <span class="input-group-text"><%= t('movies.index.duration_unit') %></span>
+      </div>
     </div>
 
     <div class="col-md-4 mb-3">
-
-      <%= form.label :director, "Diretor", class: "form-label" %>
-      <%= form.text_field :director, class: "form-control", placeholder: "Nome do diretor" %>
+      <%= form.label :director, t('.director_label'), class: "form-label" %>
+      <%= form.text_field :director, class: "form-control", placeholder: t('.director_placeholder') %>
     </div>
   </div>
 
   <div class="mb-4">
     <div class="d-flex justify-content-between align-items-center mb-2">
-      <%= form.label :category_ids, "Categorias", class: "form-label mb-0" %>
-      <%= link_to "Gerenciar categorias", categories_path, class: "btn btn-sm btn-outline-secondary", target: "_blank" %>
+      <%= form.label :category_ids, t('.categories_label'), class: "form-label mb-0" %>
+      <%= link_to t('.manage_categories'), categories_path, class: "btn btn-sm btn-outline-secondary", target: "_blank", rel: "noopener" %>
     </div>
 
     <% if @categories.any? %>
-      <div class="border rounded p-3 bg-light">
-        <div class="row g-2" id="categories-container">
+      <div class="border rounded p-3 bg-light category-selection-box">
+        <div class="row g-2"
+             id="categories-container"
+             data-selected-label="<%= t('.selected_categories_title') %>"
+             data-none-selected-label="<%= t('.no_category_selected') %>" >
           <% @categories.each do |category| %>
             <div class="col-md-3 col-sm-4 col-6">
-              <label class="category-checkbox-label">
+              <label class="category-checkbox-label w-100">
                 <%= check_box_tag 'movie[category_ids][]',
                     category.id,
                     movie.category_ids.include?(category.id),
-
                     class: "category-checkbox",
                     id: "category_#{category.id}" %>
                 <span class="category-button <%= 'active' if movie.category_ids.include?(category.id) %>">
                   <%= category.name %>
                 </span>
-
               </label>
             </div>
           <% end %>
         </div>
-
         <%= hidden_field_tag 'movie[category_ids][]', '' %>
       </div>
 
-      <div id="selected-categories" class="mt-2 text-muted" style="font-size: 0.9em;">
-        <% if movie.categories.any? %>
-          <strong>Selecionadas:</strong> <span id="selected-list"><%= movie.categories.ordered.map(&:name).join(", ") %></span>
-        <% else %>
-          <span id="no-selection">Nenhuma categoria selecionada.</span>
-        <% end %>
+      <div id="selected-categories" class="mt-2 text-muted small">
+         <strong><%= t('.selected_categories_title') %></strong> <span id="selected-list"><%= movie.categories.ordered.map(&:name).join(", ").presence || t('.no_category_selected') %></span>
       </div>
     <% else %>
-      <div class="alert alert-warning">
-        <small>
-          Nenhuma categoria cadastrada ainda.
-          <%= link_to "Criar primeira categoria", new_category_path, target: "_blank" %>
-        </small>
+      <div class="alert alert-warning small">
+        <i class="bi bi-exclamation-triangle"></i> <%= t('.no_categories_yet') %> <%= link_to t('.create_first_category'), new_category_path, target: "_blank", rel: "noopener" %>
       </div>
     <% end %>
   </div>
 
   <div class="mb-4">
-    <%= form.label :tag_list, "Tags", class: "form-label" %>
-    <div class="form-text mb-2">
+    <%= form.label :tag_list, t('.tags_label'), class: "form-label" %>
+    <div class="form-text mb-2 small">
       <i class="bi bi-info-circle"></i>
-      Adicione palavras-chave como "Clássico", "Baseado em fatos reais", etc.
-      Pressione Enter ou vírgula para adicionar.
+      <%= t('.tags_hint') %>
     </div>
 
-    <div id="tags-input-container" class="tags-input-container">
+    <div id="tags-input-container" class="tags-input-container" data-close-label="<%= t('helpers.bootstrap.close_label', default: 'Close') %>">
       <div id="tags-list" class="tags-list"></div>
       <input
         type="text"
         id="tag-input"
         class="tag-input"
-        placeholder="Digite uma tag e pressione Enter..."
+        placeholder="<%= t('.tag_input_placeholder') %>"
         autocomplete="off"
+        data-tag-too-short-message="<%= t('activerecord.errors.models.tag.attributes.name.too_short', count: 2) %>"
+        data-tag-too-long-message="<%= t('activerecord.errors.models.tag.attributes.name.too_long', count: 50) %>"
+        data-tag-duplicate-message="<%= t('js.tags.duplicate_error', default: 'Esta tag já foi adicionada') %>"
+        data-tag-limit-reached-message="<%= t('js.tags.limit_error', max: 20, default: 'Você pode adicionar no máximo %{max} tags') %>"
+        data-aria-remove-label="<%= t('js.tags.aria_remove_label', default: 'Remover tag') %>"
       >
     </div>
 
     <%= form.hidden_field :tag_list, id: "movie_tag_list", value: movie.tag_list %>
-
-
-    <div id="tags-counter" class="tags-counter text-muted" style="font-size: 0.8em;">0/20 tags</div>
+    <div id="tags-counter" class="tags-counter text-muted small mt-1" data-counter-format="<%= t('.tags_counter', count: '%{count}', max: '%{max}') %>">
+      <%= t('.tags_counter', count: movie.tags.count, max: 20) %>
+    </div>
   </div>
 
   <div class="d-flex gap-2 mt-4">
-    <%= form.submit (movie.persisted? ? "Atualizar Filme" : "Criar Filme"), class: "btn btn-primary" %>
-    <%= link_to "Cancelar", movie.persisted? ? movie_path(movie) : movies_path, class: "btn btn-secondary" %>
+    <%= form.submit (movie.persisted? ? t('.update_movie_button') : t('.create_movie_button')), class: "btn btn-primary" %>
+    <%= link_to t('cancel'), movie.persisted? ? movie_path(movie) : movies_path, class: "btn btn-secondary" %>
   </div>
+
+  <%= hidden_field_tag 'movie[remove_poster]', '0', id: 'hidden_remove_poster' %>
 <% end %>

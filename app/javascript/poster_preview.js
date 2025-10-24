@@ -6,11 +6,18 @@ function initializePosterPreview() {
     const posterPreviewDiv = document.getElementById('poster_preview');
     const posterPreviewImage = document.getElementById('poster_preview_image');
     const removePosterCheckbox = document.getElementById('remove_poster_checkbox');
+    const hiddenRemoveInput = document.getElementById('hidden_remove_poster');
 
-    // Se não encontrar o input de poster, vai sair da função
+    // Se não encontrar o input de poster, sai da função
     if (!posterInput || !posterPreviewDiv || !posterPreviewImage) {
         return;
     }
+
+    // Lê as mensagens de erro dos atributos
+    const invalidFormatMessage = posterInput.dataset.invalidFormatMessage || 'Invalid format.';
+    const sizeLimitMessage = posterInput.dataset.sizeLimitMessage || 'Image too large.';
+    const loadErrorMessage = posterInput.dataset.loadErrorMessage || 'Error loading image.';
+
 
     posterInput.addEventListener('change', function (e) {
         const file = e.target.files[0];
@@ -20,10 +27,9 @@ function initializePosterPreview() {
             return;
         }
 
-        // --- Aqui estão as validações validações---
         const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
         if (!validTypes.includes(file.type)) {
-            showError('Formato inválido. Por favor, selecione uma imagem PNG, JPEG ou WebP.');
+            showError(invalidFormatMessage);
             posterInput.value = ''
             hidePosterPreview();
             return;
@@ -31,7 +37,7 @@ function initializePosterPreview() {
 
         const maxSize = 5 * 1024 * 1024;
         if (file.size > maxSize) {
-            showError('Imagem muito grande. O tamanho máximo permitido é 5MB.');
+            showError(sizeLimitMessage);
             posterInput.value = ''
             hidePosterPreview();
             return;
@@ -43,25 +49,28 @@ function initializePosterPreview() {
             posterPreviewImage.src = event.target.result;
             posterPreviewDiv.style.display = 'block';
 
-            // Se existir o checkbox de remoção, desmarca ele, pois um novo arquivo foi selecionado
+            // Se existir o checkbox de remoção, desmarca ele
             if (removePosterCheckbox) {
                 removePosterCheckbox.checked = false;
-
-                updateRemovePosterInput(false, posterInput);
+                // Garante que o input hidden correspondente seja atualizado para '0'
+                if (hiddenRemoveInput) {
+                    hiddenRemoveInput.value = '0';
+                }
             }
         };
 
         reader.onerror = function () {
-            showError('Erro ao carregar a imagem. Tente novamente.');
+            showError(loadErrorMessage);
             hidePosterPreview();
         };
 
-        reader.readAsDataURL(file);
+        reader.readAsURL(file);
     });
 
-    if (removePosterCheckbox) {
+    // Atualiza o input hidden quando o checkbox muda
+    if (removePosterCheckbox && hiddenRemoveInput) {
         removePosterCheckbox.addEventListener('change', function () {
-            updateRemovePosterInput(this.checked, posterInput);
+            hiddenRemoveInput.value = this.checked ? '1' : '0';
 
             // Se marcou para remover, limpa o input de arquivo e esconde o preview
             if (this.checked) {
@@ -69,6 +78,8 @@ function initializePosterPreview() {
                 hidePosterPreview();
             }
         });
+        // Sincroniza o valor inicial do hidden input com o checkbox (caso a página recarregue com erro)
+        hiddenRemoveInput.value = removePosterCheckbox.checked ? '1' : '0';
     }
 }
 
@@ -80,34 +91,8 @@ function hidePosterPreview() {
     if (posterPreviewDiv) {
         posterPreviewDiv.style.display = 'none';
     }
-
     if (posterPreviewImage) {
-        posterPreviewImage.src = ''; // vai limpar a imagem aqui
-    }
-}
-
-// Função para adicionar/remover o input hidden que sinaliza a remoção
-function updateRemovePosterInput(shouldRemove, posterInputElement) {
-    if (!posterInputElement) return;
-    const form = posterInputElement.closest('form');
-    if (!form) return;
-
-    let removeInput = form.querySelector('input[type="hidden"][name="movie[remove_poster]"]');
-
-    if (shouldRemove) {
-        // Se deve remover e o input hidden não existe, cria ele
-        if (!removeInput) {
-            removeInput = document.createElement('input');
-            removeInput.type = 'hidden';
-            removeInput.name = 'movie[remove_poster]';
-            form.appendChild(removeInput);
-        }
-        removeInput.value = '1';
-    } else {
-        // Se não deve remover e o input hidden existe, remove ele
-        if (removeInput) {
-            removeInput.remove();
-        }
+        posterPreviewImage.src = '';
     }
 }
 
@@ -119,7 +104,6 @@ function showError(message) {
 
     const errorContainer = posterInput.parentElement;
 
-    // Remover erro existente para não acumular mensagens
     const existingError = errorContainer.querySelector('.poster-upload-error');
     if (existingError) {
         existingError.remove();
@@ -145,10 +129,12 @@ function showError(message) {
 
     // Remover automaticamente após 5 segundos
     setTimeout(() => {
-        errorDiv.style.transition = 'opacity 0.5s ease';
-        errorDiv.style.opacity = '0';
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 500);
+        if (errorDiv) {
+            errorDiv.style.transition = 'opacity 0.5s ease';
+            errorDiv.style.opacity = '0';
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 500);
+        }
     }, 5000);
 }

@@ -1,0 +1,371 @@
+pt-BR:
+  app_name: "Catálogo de Filmes"
+
+  # Navbar
+  navbar:
+    brand: "Catálogo de Filmes"
+    toggle_navigation: "Alternar navegação"
+    hello_user: "Olá, %{user_name}"
+    profile: "Perfil"
+    logout: "Sair"
+    signup: "Cadastrar-se"
+    login: "Entrar"
+    language: "Idioma"
+    pt-BR: "Português (BR)"
+    en: "Inglês"
+
+  # Flashes que são as mensagens de notificação
+  flash:
+    movies:
+      created: "Filme criado com sucesso."
+      updated: "Filme atualizado com sucesso."
+      deleted: "Filme deletado com sucesso."
+      not_found: "Filme não encontrado ou você não tem permissão para acessá-lo."
+      unauthorized: "Você não está autorizado a realizar esta ação."
+    categories:
+      created: "Categoria criada com sucesso."
+      updated: "Categoria atualizada com sucesso."
+      deleted: "Categoria excluída com sucesso."
+    comments:
+      created: "Comentário postado com sucesso."
+      error: "Não foi possível enviar o comentário:"
+    devise:
+      sessions:
+        signed_in: "Login efetuado com sucesso."
+        signed_out: "Logout efetuado com sucesso."
+      registrations:
+        signed_up: "Bem-vindo! Cadastro realizado com sucesso."
+        updated: "Conta atualizada com sucesso."
+        destroyed: "Até logo! Sua conta foi cancelada com sucesso. Esperamos vê-lo novamente em breve."
+      passwords:
+        send_instructions: "Dentro de minutos, você receberá um e-mail com instruções para redefinir a sua senha."
+        updated: "Sua senha foi alterada com sucesso. Você está logado."
+
+  # Views comuns
+  back: "Voltar"
+  actions: "Ações"
+  edit: "Editar"
+  delete: "Excluir"
+  show: "Mostrar"
+  new: "Novo(a)"
+  save: "Salvar"
+  update: "Atualizar"
+  cancel: "Cancelar"
+  confirm_delete: "Tem certeza?"
+
+  # Movies
+  movies:
+    index:
+      title: "Catálogo de Filmes"
+      main_title: "Filmes"
+      results: "resultado encontrado"
+      results_plural: "resultados encontrados"
+      manage_categories: "Gerenciar Categorias"
+      new_movie: "Novo Filme"
+      search_filters: "Busca e Filtros"
+      advanced_filters: "Filtros Avançados"
+      quick_search: "Busca Rápida"
+      title_label: "Título"
+      title_placeholder: "Ex: Matrix"
+      director_label: "Diretor"
+      director_placeholder: "Ex: Spielberg"
+      year_label: "Ano"
+      year_placeholder: "2024"
+      category_label: "Categoria"
+      category_all: "Todas"
+      search_button: "Buscar"
+      clear_button: "Limpar"
+      filter_categories_label: "Filtrar por Categorias (múltipla escolha)"
+      filter_categories_hint: "Selecione uma ou mais categorias para filtrar (mostrará filmes que pertencem a TODAS as categorias selecionadas)."
+      year_from_label: "Ano (de)"
+      year_from_placeholder: "Ex: 1990"
+      year_to_label: "Ano (até)"
+      year_to_placeholder: "Ex: 2024"
+      filter_directors_label: "Filtrar por Diretores (múltipla escolha)"
+      filter_directors_hint: "Selecione um ou mais diretores para filtrar."
+      apply_advanced_filters: "Aplicar Filtros Avançados"
+      clear_all_filters: "Limpar Todos os Filtros"
+      active_filters_title: "Filtros ativos:"
+      clear_all_filters_link: "Limpar todos os filtros"
+      search_success_message: "%{count} %{results_text}"
+      no_results_adjust: "Tente ajustar os filtros de busca ou %{clear_link}."
+      no_movies_yet: "Nenhum filme cadastrado ainda."
+      add_first_movie: "Cadastrar primeiro filme"
+      year: "Ano"
+      duration: "Duração"
+      director: "Diretor"
+      duration_unit: "min"
+    show:
+      back_to_movies: "← Voltar para filmes"
+      synopsis: "Sinopse"
+      tags_title: "Tags"
+      year_label: "Ano:"
+      duration_label: "Duração:"
+      director_label: "Diretor:"
+      edit_button: '<i class="bi bi-pencil-fill"></i> Editar'
+      delete_button: '<i class="bi bi-trash-fill"></i> Deletar'
+      delete_confirm: "Tem certeza que deseja excluir este filme? Esta ação não pode ser desfeita."
+      comments_title: '<i class="bi bi-chat-dots-fill"></i> Comentários'
+      comment_name_label: "Nome"
+      comment_name_placeholder: "Seu nome"
+      commenting_as: "Comentando como:"
+      comment_content_label: "Seu Comentário"
+      comment_content_placeholder: "Escreva seu comentário aqui..."
+      post_comment_button: "Postar Comentário"
+      comments_count:
+        one: "1 comentário"
+        other: "%{count} comentários"
+      commenter_registered: "Registrado"
+      commenter_visitor: "Visitante"
+      comment_time_ago: "%{time} atrás"
+      no_comments_yet: '<i class="bi bi-chat-left-dots"></i> Seja o primeiro a comentar este filme!'
+    new:
+      title: "Novo filme"
+      main_title: "Novo filme"
+      back_to_movies: "Voltar para filmes"
+    edit:
+      title: "Editar filme"
+      main_title: "Editando filme"
+      show_movie: "Mostrar este filme"
+      back_to_movies: "Voltar para filmes"
+    form:
+      errors_title:
+        one: "1 erro impede o salvamento:"
+        other: "%{count} erros impedem o salvamento:"
+      poster_label: "Pôster do Filme"
+      current_poster: "Pôster atual:"
+      remove_poster: "Remover pôster atual"
+      poster_formats: "Formatos aceitos: PNG, JPEG, WebP."
+      poster_size: "Tamanho máximo: 5MB."
+      poster_preview: "Pré-visualização:"
+      title_label: "Título"
+      title_placeholder: "Digite o título do filme"
+      synopsis_label: "Sinopse"
+      synopsis_placeholder: "Descreva a sinopse do filme"
+      year_label: "Ano"
+      year_placeholder: "Ex: 2024"
+      duration_label: "Duração (minutos)"
+      duration_placeholder: "Ex: 120"
+      director_label: "Diretor"
+      director_placeholder: "Nome do diretor"
+      categories_label: "Categorias"
+      manage_categories: "Gerenciar categorias"
+      no_categories_yet: "Nenhuma categoria cadastrada ainda."
+      create_first_category: "Criar primeira categoria"
+      selected_categories_title: "Selecionadas:"
+      no_category_selected: "Nenhuma categoria selecionada."
+      tags_label: "Tags"
+      tags_hint: 'Adicione palavras-chave como "Clássico", "Baseado em fatos reais", etc. Pressione Enter ou vírgula para adicionar.'
+      tag_input_placeholder: "Digite uma tag e pressione Enter..."
+      tags_counter: "%{count}/%{max} tags"
+      create_movie_button: "Criar Filme"
+      update_movie_button: "Atualizar Filme"
+
+  # Categories
+  categories:
+    index:
+      title: "Categorias"
+      main_title: "Categorias"
+      new_category: "Nova Categoria"
+      name_header: "Nome"
+      movies_header: "Filmes"
+      actions_header: "Ações"
+      delete_confirm: "Tem certeza? Esta categoria será removida de todos os filmes associados."
+      no_categories_yet: "Nenhuma categoria cadastrada ainda."
+      create_first_category: "Criar primeira categoria"
+      back_to_movies: "Voltar para filmes"
+    new:
+      title: "Nova Categoria"
+      main_title: "Nova Categoria"
+      form:
+        errors_title:
+          one: "1 erro impede o salvamento:"
+          other: "%{count} erros impedem o salvamento:"
+        name_label: "Nome da Categoria"
+        name_placeholder: "Ex: Ação, Drama, Comédia"
+        name_hint: "A categoria será automaticamente formatada com a primeira letra maiúscula."
+        create_category_button: "Criar Categoria"
+    edit:
+      title: "Editar Categoria"
+      main_title: "Editar Categoria"
+      form:
+        errors_title:
+          one: "1 erro impede o salvamento:"
+          other: "%{count} erros impedem o salvamento:"
+        name_label: "Nome da Categoria"
+        name_placeholder: "Ex: Ação, Drama, Comédia"
+        name_hint: "A categoria será automaticamente formatada com a primeira letra maiúscula."
+        associated_movies: "Filmes associados:"
+        create_category_button: "Criar Categoria"
+        update_category_button: "Atualizar Categoria"
+
+  # Devise (autenticação)
+  devise:
+    confirmations:
+      new:
+        resend_confirmation_instructions: "Reenviar instruções de confirmação"
+    mailer:
+      confirmation_instructions:
+        greeting: "Bem-vindo(a) %{recipient}!"
+        instruction: "Você pode confirmar o e-mail da sua conta através do link abaixo:"
+        action: "Confirmar minha conta"
+      email_changed:
+        greeting: "Olá %{recipient}!"
+        subject: "Seu e-mail foi alterado"
+        message_unconfirmed: "Estamos entrando em contato para notificá-lo que seu e-mail está sendo alterado para %{email}."
+        message: "Estamos entrando em contato para notificá-lo que seu e-mail foi alterado para %{email}."
+      password_change:
+        greeting: "Olá %{recipient}!"
+        subject: "Sua senha foi alterada"
+        message: "Estamos entrando em contato para notificá-lo que sua senha foi alterada."
+      reset_password_instructions:
+        greeting: "Olá %{recipient}!"
+        instruction: "Alguém solicitou um link para alterar sua senha. Você pode fazê-lo através do link abaixo."
+        action: "Alterar minha senha"
+        ignore_notice: "Se você não solicitou isso, por favor, ignore este e-mail."
+        unchanged_notice: "Sua senha não será alterada até que você acesse o link acima e crie uma nova."
+      unlock_instructions:
+        greeting: "Olá %{recipient}!"
+        account_locked_notice: "Sua conta foi bloqueada devido a um número excessivo de tentativas de login malsucedidas."
+        instruction: "Clique no link abaixo para desbloquear sua conta:"
+        action: "Desbloquear minha conta"
+    passwords:
+      edit:
+        change_your_password: "Alterar sua senha"
+        new_password: "Nova senha"
+        confirm_new_password: "Confirmar nova senha"
+        change_my_password: "Alterar minha senha"
+      new:
+        forgot_your_password: "Esqueceu sua senha?"
+        send_me_reset_password_instructions: "Enviar instruções de redefinição de senha"
+    registrations:
+      edit:
+        title: "Editar Perfil"
+        errors_title:
+          one: "1 erro impede esta atualização:"
+          other: "%{count} erros impedem esta atualização:"
+        name_label: "Nome"
+        email_label: "Email"
+        email_currently: "Atualmente: %{email}"
+        change_password_title: "Alterar senha"
+        leave_blank_if_dont_want_to_change: "Deixe em branco se não quiser alterar"
+        new_password_label: "Nova senha"
+        confirm_new_password_label: "Confirmar nova senha"
+        current_password_label: "Senha atual"
+        we_need_your_current_password: "(precisamos da sua senha atual para confirmar suas alterações)"
+        submit: "Salvar alterações"
+        cancel_my_account: "Cancelar minha conta"
+        unhappy: "Insatisfeito?"
+        cancel_my_account_button: "Cancelar minha conta"
+        are_you_sure: "Tem certeza?"
+      new:
+        title: "Cadastrar-se"
+        name_label: "Nome"
+        email_label: "Email"
+        password_label: "Senha"
+        password_minimum: "(%{minimum} caracteres no mínimo)"
+        password_confirmation_label: "Confirmação de senha"
+        submit: "Cadastrar-se"
+    sessions:
+      new:
+        title: "Entrar"
+        email_label: "Email"
+        password_label: "Senha"
+        remember_me: "Lembrar-me"
+        submit: "Entrar"
+    shared:
+      links:
+        login: "Entrar"
+        signup: "Cadastrar-se"
+        forgot_password: "Esqueceu sua senha?"
+        confirmation_instructions: "Não recebeu instruções de confirmação?"
+        unlock_instructions: "Não recebeu instruções de desbloqueio?"
+        signin_with_provider: "Entrar com %{provider}"
+      minimum_password_length: "%{count} caracteres no mínimo"
+    unlocks:
+      new:
+        resend_unlock_instructions: "Reenviar instruções de desbloqueio"
+
+  # Kaminari (Paginação)
+  views:
+    pagination:
+      first: "&laquo; Primeira"
+      last: "Última &raquo;"
+      previous: "&lsaquo; Anterior"
+      next: "Próxima &rsaquo;"
+      truncate: "&hellip;"
+
+  # Helpers
+  helpers:
+    submit:
+      create: 'Criar %{model}'
+      update: 'Atualizar %{model}'
+    bootstrap:
+      close_label: "Fechar"
+
+  # Active Record Models
+  activerecord:
+    models:
+      movie: "Filme"
+      category: "Categoria"
+      comment: "Comentário"
+      user: "Usuário"
+      tag: "Tag"
+    attributes:
+      movie:
+        title: "Título"
+        synopsis: "Sinopse"
+        year: "Ano"
+        duration: "Duração"
+        director: "Diretor"
+        poster: "Pôster"
+        category_ids: "Categorias"
+        tag_list: "Tags"
+      category:
+        name: "Nome"
+      comment:
+        name: "Nome"
+        content: "Conteúdo"
+      user:
+        name: "Nome"
+        email: "Email"
+        password: "Senha"
+        password_confirmation: "Confirmação de senha"
+        current_password: "Senha atual"
+        anonymous: "Usuário sem nome"
+      tag:
+        name: "Nome"
+    errors:
+      models:
+        movie:
+          attributes:
+            poster:
+              content_type: "deve ser uma imagem JPEG, PNG ou WebP"
+              size: "deve ter no máximo 5MB"
+        tag:
+          attributes:
+            name:
+              too_short: "deve ter pelo menos %{count} caracteres"
+              too_long: "deve ter no máximo %{count} caracteres"
+
+  # JavaScript traduções especificas
+  js:
+    poster_preview:
+      load_error: "Erro ao carregar a imagem. Tente novamente."
+    tags:
+      duplicate_error: "Esta tag já foi adicionada"
+      limit_error: "Você pode adicionar no máximo %{max} tags"
+      aria_remove_label: "Remover tag"
+    categories:
+      selected_label: "Selecionadas:"
+      none_selected_label: "Clique nos botões para selecionar as categorias do filme."
+
+  time:
+    formats:
+      default: "%d/%m/%Y %H:%M"
+      short: "%d/%m %H:%M"
+
+  date:
+    formats:
+      default: "%d/%m/%Y"
+      short: "%d/%m"

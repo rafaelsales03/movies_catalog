@@ -17,7 +17,9 @@ class Movie < ApplicationRecord
   }, allow_blank: true
   validate :poster_format
 
-  attr_accessor :tag_list
+  attr_accessor :tag_list, :remove_poster
+
+  before_validation :clear_poster_if_needed
 
   after_save :sync_tags
 
@@ -30,48 +32,43 @@ class Movie < ApplicationRecord
   }
 
   scope :by_year, ->(year) {
-    where(year: year) if year.present?
+    where(year: year.to_i) if year.present? && year.to_i > 0
   }
+
 
   scope :by_category, ->(category_id) {
     joins(:categories).where(categories: { id: category_id }).distinct if category_id.present?
   }
 
   scope :by_categories, ->(category_ids) {
-    if category_ids.present? && category_ids.is_a?(Array)
-      clean_ids = category_ids.reject(&:blank?).map(&:to_i)
-      if clean_ids.any?
-        movie_ids = joins(:categories)
-                      .where(categories: { id: clean_ids })
-                      .select("movies.id")
-                      .group("movies.id")
-                      .having("COUNT(DISTINCT categories.id) = ?", clean_ids.size)
-                      .pluck(:id)
-
-        where(id: movie_ids) if movie_ids.any?
-      end
+    clean_ids = Array(category_ids).reject(&:blank?).map(&:to_i)
+    if clean_ids.any?
+      movie_ids = joins(:categories)
+                    .where(categories: { id: clean_ids })
+                    .group("movies.id")
+                    .having("COUNT(DISTINCT categories.id) = ?", clean_ids.size)
+                    .pluck(:id)
+      movie_ids.any? ? where(id: movie_ids) : none
     end
   }
 
+
   scope :by_year_range, ->(year_from, year_to) {
     query = all
-    query = query.where("year >= ?", year_from) if year_from.present?
-    query = query.where("year <= ?", year_to) if year_to.present?
+    from = year_from.to_i if year_from.present?
+    to = year_to.to_i if year_to.present?
+    query = query.where("year >= ?", from) if from && from > 0
+    query = query.where("year <= ?", to) if to && to > 0
     query
   }
 
   scope :by_directors, ->(directors) {
-    if directors.present? && directors.is_a?(Array)
-      clean_directors = directors.reject(&:blank?).map(&:downcase)
-      if clean_directors.any?
-        conditions = clean_directors.map { "LOWER(director) LIKE ?" }.join(" OR ")
-        values = clean_directors.map { |d| "%#{sanitize_sql_like(d)}%" }
-        where(conditions, *values)
-      end
+    clean_directors = Array(directors).reject(&:blank?).map(&:downcase)
+    if clean_directors.any?
+      conditions = clean_directors.map { |d| sanitize_sql_array([ "LOWER(director) LIKE ?", "%#{sanitize_sql_like(d)}%" ]) }.join(" OR ")
+      where(conditions)
     end
   }
-
-
   def self.simple_search(params)
     movies = all
     movies = movies.by_title(params[:title])
@@ -83,15 +80,17 @@ class Movie < ApplicationRecord
 
   def self.advanced_search(params)
     movies = all
-    movies = movies.by_title(params[:title])
-    movies = movies.by_director(params[:director])
-    movies = movies.by_year(params[:year])
-    movies = movies.by_category(params[:category_id])
-    movies = movies.by_categories(params[:filter_categories])
-    movies = movies.by_year_range(params[:year_from], params[:year_to])
-    movies = movies.by_directors(params[:filter_directors])
-    movies.order(created_at: :desc)
+    movies = movies.by_title(params[:title])                     if params[:title].present?
+    movies = movies.by_director(params[:director])               if params[:director].present?
+    movies = movies.by_year(params[:year])                       if params[:year].present?
+    movies = movies.by_category(params[:category_id])            if params[:category_id].present?
+    movies = movies.merge(by_categories(params[:filter_categories])) if params[:filter_categories].present?
+    movies = movies.by_year_range(params[:year_from], params[:year_to]) if params[:year_from].present? || params[:year_to].present?
+    movies = movies.merge(by_directors(params[:filter_directors]))   if params[:filter_directors].present?
+
+    movies.order(created_at: :desc).distinct
   end
+
 
   def self.unique_directors
     where.not(director: [ nil, "" ])
@@ -101,33 +100,46 @@ class Movie < ApplicationRecord
   end
 
   def tag_list
-    @tag_list || tags.pluck(:name).join(", ")
+    @tag_list || tags.map(&:name).join(", ")
   end
 
   private
 
+  def clear_poster_if_needed
+    poster.purge if remove_poster == "1"
+  end
+
+
   def sync_tags
-    return unless @tag_list
+    return unless defined?(@tag_list) && @tag_list
 
-    self.tags.clear
+    current_tags = tags.map(&:name)
+    new_tags = @tag_list.split(",").map(&:strip).reject(&:blank?).uniq.map do |tag_name|
+      tag_name.strip.split.map(&:capitalize).join(" ")
+    end
 
-    tag_names = @tag_list.split(",").map(&:strip).reject(&:blank?).uniq
+    tags_to_remove = current_tags - new_tags
+    if tags_to_remove.any?
+      tags.where(name: tags_to_remove).destroy_all
+    end
 
-    tag_names.each do |tag_name|
+    tags_to_add = new_tags - current_tags
+    tags_to_add.each do |tag_name|
       tag = Tag.find_or_create_by(name: tag_name)
       self.tags << tag unless self.tags.include?(tag)
     end
   end
 
+
   def poster_format
     return unless poster.attached?
 
     unless poster.content_type.in?(%w[image/jpeg image/jpg image/png image/webp])
-      errors.add(:poster, "deve ser uma imagem JPEG, PNG ou WebP")
+      errors.add(:poster, :content_type)
     end
 
     unless poster.byte_size <= 5.megabytes
-      errors.add(:poster, "deve ter no máximo 5MB")
+      errors.add(:poster, :size)
     end
   end
 end

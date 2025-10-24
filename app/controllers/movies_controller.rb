@@ -9,10 +9,11 @@ class MoviesController < ApplicationController
     @categories = Category.ordered
     @all_directors = Movie.unique_directors
 
-    @movies = Movie.includes(:categories, :tags, poster_attachment: :blob)
-                   .advanced_search(filter_params)
-                   .page(params[:page])
-                   .per(params[:per_page] || 6)
+    base_query = Movie.advanced_search(filter_params)
+
+    @movies = base_query.includes(:categories, :tags, poster_attachment: :blob)
+                      .page(params[:page])
+                      .per(params[:per_page] || 6)
 
     @search_performed = filter_params.values.any? do |value|
       if value.is_a?(Array)
@@ -49,7 +50,7 @@ class MoviesController < ApplicationController
 
     respond_to do |format|
       if @movie.save
-        format.html { redirect_to @movie, notice: "Filme criado com sucesso." }
+        format.html { redirect_to @movie, notice: t("flash.movies.created") }
         format.json { render :show, status: :created, location: @movie }
       else
         @categories = Category.ordered
@@ -63,13 +64,9 @@ class MoviesController < ApplicationController
   def update
     authorize_movie_owner!
 
-    if params[:movie][:remove_poster] == "1"
-      @movie.poster.purge
-    end
-
     respond_to do |format|
-      if @movie.update(movie_params.except(:remove_poster))
-        format.html { redirect_to @movie, notice: "Filme atualizado com sucesso.", status: :see_other }
+      if @movie.update(movie_params)
+        format.html { redirect_to @movie, notice: t("flash.movies.updated"), status: :see_other }
         format.json { render :show, status: :ok, location: @movie }
       else
         @categories = Category.ordered
@@ -85,7 +82,7 @@ class MoviesController < ApplicationController
     @movie.destroy!
 
     respond_to do |format|
-      format.html { redirect_to movies_path, notice: "Filme deletado com sucesso.", status: :see_other }
+      format.html { redirect_to movies_path, notice: t("flash.movies.deleted"), status: :see_other }
       format.json { head :no_content }
     end
   end
@@ -93,15 +90,18 @@ class MoviesController < ApplicationController
   private
 
   def set_movie
-    if user_signed_in? && (action_name != "show")
+    if user_signed_in? && (action_name == "edit" || action_name == "update" || action_name == "destroy")
       @movie = current_user.movies.includes(poster_attachment: :blob).find(params[:id])
     else
-      @movie = Movie.includes(:categories, :tags, :comments, poster_attachment: :blob).find(params[:id])
+      @movie = Movie.includes(:categories, :tags, :comments, :user, poster_attachment: :blob).find(params[:id])
     end
+  rescue ActiveRecord::RecordNotFound
+     movie_not_found
   end
 
+
   def movie_not_found
-    redirect_to movies_path, alert: "Filme não encontrado ou você não tem permissão para acessá-lo."
+    redirect_to movies_path, alert: t("flash.movies.not_found")
   end
 
   def movie_params
@@ -129,54 +129,51 @@ class MoviesController < ApplicationController
       filter_categories: [],
       filter_directors: [],
       filter_tags: []
-    )
+    ).reject { |_, v| v.blank? }
   end
 
+
   def authorize_movie_owner!
-    unless @movie.user == current_user
-      redirect_to movies_path, alert: "Você não está autorizado a realizar esta ação."
+    unless @movie && @movie.user == current_user
+      redirect_to movies_path, alert: t("flash.movies.unauthorized")
     end
   end
 
   def build_active_filters
     filters = []
-
-    filters << "Título: #{params[:title]}" if params[:title].present?
-    filters << "Diretor: #{params[:director]}" if params[:director].present?
-    filters << "Ano: #{params[:year]}" if params[:year].present?
+    filters << "#{t('activerecord.attributes.movie.title')}: #{params[:title]}" if params[:title].present?
+    filters << "#{t('activerecord.attributes.movie.director')}: #{params[:director]}" if params[:director].present?
+    filters << "#{t('activerecord.attributes.movie.year')}: #{params[:year]}" if params[:year].present?
 
     if params[:category_id].present?
       category = @categories.find_by(id: params[:category_id])
-      filters << "Categoria: #{category.name}" if category
+      filters << "#{t('activerecord.models.category')}: #{category.name}" if category
     end
 
     if params[:filter_categories].present?
       selected = params[:filter_categories].reject(&:blank?)
       if selected.any?
         category_names = @categories.where(id: selected).pluck(:name).join(", ")
-        filters << "Categorias (filtro): #{category_names}"
-      end
-    end
-
-    if params[:filter_tags].present?
-      selected = params[:filter_tags].reject(&:blank?)
-      if selected.any?
-        tag_names = Tag.where(id: selected).pluck(:name).join(", ")
-        filters << "Tags: #{tag_names}"
+        filters << "#{t('movies.index.filter_categories_label').split('(').first.strip}: #{category_names}"
       end
     end
 
     if params[:year_from].present? || params[:year_to].present?
-      year_range = []
-      year_range << "de #{params[:year_from]}" if params[:year_from].present?
-      year_range << "até #{params[:year_to]}" if params[:year_to].present?
-      filters << "Período: #{year_range.join(' ')}"
+      filter_text = if params[:year_from].present? && params[:year_to].present?
+                      "Período: de #{params[:year_from]} até #{params[:year_to]}"
+      elsif params[:year_from].present?
+                      "Período: a partir de #{params[:year_from]}"
+      else
+                      "Período: até #{params[:year_to]}"
+      end
+      filters << filter_text
     end
+
 
     if params[:filter_directors].present?
       selected = params[:filter_directors].reject(&:blank?)
       if selected.any?
-        filters << "Diretores (filtro): #{selected.join(', ')}"
+        filters << "#{t('movies.index.filter_directors_label').split('(').first.strip}: #{selected.join(', ')}"
       end
     end
 

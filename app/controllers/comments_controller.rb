@@ -8,12 +8,13 @@ class CommentsController < ApplicationController
 
     if user_signed_in?
       @comment.user = current_user
-      @comment.name = current_user.name.presence || "Usuário sem nome"
+      @comment.name = current_user.name.presence || t("activerecord.attributes.user.anonymous", default: "Usuário sem nome")
     end
 
     if @comment.save
-      redirect_to movie_path(@movie), notice: "Comentário postado com sucesso."
+      redirect_to movie_path(@movie), notice: t("flash.comments.created")
     else
+      flash.now[:alert] = t("flash.comments.error")
       render "movies/show", status: :unprocessable_entity
     end
   end

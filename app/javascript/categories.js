@@ -5,48 +5,33 @@ function initializeCategorySelection() {
     const container = document.getElementById('categories-container');
     if (!container) return;
 
+    const messages = {
+        selectedLabel: container.dataset.selectedLabel || 'Selected:',
+        noneSelectedLabel: container.dataset.noneSelectedLabel || 'Click buttons to select movie categories.'
+    };
+
     const labels = container.querySelectorAll('.category-checkbox-label');
-
     labels.forEach((label) => {
-        const checkbox = label.querySelector('.category-checkbox');
-        const button = label.querySelector('.category-button');
+        const newLabel = label.cloneNode(true);
+        label.parentNode.replaceChild(newLabel, label);
+
+        const checkbox = newLabel.querySelector('.category-checkbox');
+        const button = newLabel.querySelector('.category-button');
 
         if (!checkbox || !button) return;
 
-        // Vai remover qualquer listener anterior
-        label.replaceWith(label.cloneNode(true));
-    });
-
-    // Seleciona de novo depois de clonar
-    const newLabels = container.querySelectorAll('.category-checkbox-label');
-
-    newLabels.forEach((label) => {
-        const checkbox = label.querySelector('.category-checkbox');
-        const button = label.querySelector('.category-button');
-
-        if (!checkbox || !button) return;
-
-        // Ele vai sincronizar o estado inicial
         syncButtonState(checkbox, button);
 
-        // Evento de clique no label
-        label.addEventListener('click', (e) => {
-            // Previne o comportamento padrão
+        newLabel.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-
-            // Alterna manualmente o checkbox
             checkbox.checked = !checkbox.checked;
-
-            // Aqui ele sincroniza o visual do botão
             syncButtonState(checkbox, button);
-
-            // Atualiza lista de categorias selecionadas
-            updateSelectedCategories();
+            updateSelectedCategories(messages);
         });
     });
 
-    updateSelectedCategories();
+    updateSelectedCategories(messages);
 }
 
 function syncButtonState(checkbox, button) {
@@ -57,27 +42,31 @@ function syncButtonState(checkbox, button) {
     }
 }
 
-function updateSelectedCategories() {
+function updateSelectedCategories(messages) {
     const container = document.getElementById('categories-container');
     if (!container) return;
 
     const checkboxes = container.querySelectorAll('.category-checkbox:checked');
     const selectedContainer = document.getElementById('selected-categories');
+    const selectedListSpan = document.getElementById('selected-list');
 
-    if (!selectedContainer) return;
+    if (!selectedContainer || !selectedListSpan) return;
+
 
     if (checkboxes.length > 0) {
         const names = Array.from(checkboxes).map((cb) => {
             const label = cb.closest('.category-checkbox-label');
             const button = label.querySelector('.category-button');
-            return button.textContent.trim();
-        });
+            return button ? button.textContent.trim() : '';
+        }).filter(name => name);
 
-        selectedContainer.innerHTML =
-            'Selecionadas: ' +
-            names.join(', ');
+        selectedContainer.innerHTML = `<strong>${messages.selectedLabel}</strong> `;
+        selectedListSpan.textContent = names.join(', ');
+        selectedContainer.appendChild(selectedListSpan);
+
     } else {
-        selectedContainer.innerHTML =
-            'Clique nos botões para selecionar as categorias do filme.';
+        selectedContainer.innerHTML = '';
+        selectedListSpan.textContent = messages.noneSelectedLabel;
+        selectedContainer.appendChild(selectedListSpan);
     }
 }
