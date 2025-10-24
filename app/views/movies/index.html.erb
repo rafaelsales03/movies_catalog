@@ -1,5 +1,12 @@
+<% content_for :title, "Catálogo de Filmes" %>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1>Filmes</h1>
+  <h1>
+    <i class="bi bi-film"></i> Filmes
+    <% if @search_performed %>
+      <span class="badge bg-secondary"><%= @total_results %></span>
+    <% end %>
+  </h1>
   <div>
     <% if user_signed_in? %>
       <%= link_to "Gerenciar Categorias", categories_path, class: "btn btn-outline-secondary me-2" %>
@@ -8,67 +15,196 @@
   </div>
 </div>
 
-<div class="card mb-4">
+<div class="card mb-4 shadow-sm">
+  <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <h5 class="mb-0"><i class="bi bi-search"></i> Busca e Filtros</h5>
+    <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="collapse" data-bs-target="#advancedFilters">
+      <i class="bi bi-sliders"></i> Filtros Avançados
+    </button>
+  </div>
+  
   <div class="card-body">
-    <%= form_with url: movies_path, method: :get, local: true, class: "row g-3" do |f| %>
-      <div class="col-md-3">
-        <%= f.label :title, "Título", class: "form-label" %>
-        <%= f.text_field :title, value: params[:title], class: "form-control", placeholder: "Ex: Matrix" %>
+    <%= form_with url: movies_path, method: :get, local: true, class: "needs-validation" do |f| %>
+      
+      <h6 class="text-muted mb-3"><i class="bi bi-search"></i> Busca Rápida</h6>
+      <div class="row g-3 mb-4">
+        <!-- Título -->
+        <div class="col-md-3">
+          <%= f.label :title, "Título", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-film"></i></span>
+            <%= f.text_field :title, 
+                value: params[:title], 
+                class: "form-control", 
+                placeholder: "Ex: Matrix" %>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <%= f.label :director, "Diretor", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <%= f.text_field :director, 
+                value: params[:director], 
+                class: "form-control", 
+                placeholder: "Ex: Spielberg" %>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <%= f.label :year, "Ano", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+            <%= f.number_field :year, 
+                value: params[:year], 
+                class: "form-control", 
+                placeholder: "2024",
+                min: 1888, 
+                max: Date.current.year + 5 %>
+          </div>
+        </div>
+
+        <div class="col-md-2">
+          <%= f.label :category_id, "Categoria", class: "form-label" %>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-tag"></i></span>
+            <%= f.select :category_id, 
+                options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+                { include_blank: "Todas" },
+                class: "form-select" %>
+          </div>
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+          <div class="btn-group w-100" role="group">
+            <%= f.submit "Buscar", class: "btn btn-primary" %>
+            <%= link_to "Limpar", movies_path, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
       </div>
 
-      <div class="col-md-3">
-        <%= f.label :director, "Diretor", class: "form-label" %>
-        <%= f.text_field :director, value: params[:director], class: "form-control", placeholder: "Ex: Spielberg" %>
-      </div>
+      <div class="collapse" id="advancedFilters">
+        <hr>
+        <h6 class="text-muted mb-3"><i class="bi bi-sliders"></i> Filtros Avançados</h6>
+        
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <%= f.label :filter_categories, "Filtrar por Categorias (múltipla escolha)", class: "form-label" %>
+            <div class="border rounded p-3 bg-light">
+              <div class="row g-2">
+                <% @categories.each do |category| %>
+                  <div class="col-md-3 col-sm-4 col-6">
+                    <div class="form-check">
+                      <%= check_box_tag 'filter_categories[]', 
+                          category.id, 
+                          params[:filter_categories]&.include?(category.id.to_s),
+                          class: "form-check-input",
+                          id: "filter_cat_#{category.id}" %>
+                      <%= label_tag "filter_cat_#{category.id}", category.name, class: "form-check-label" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <small class="form-text text-muted">
+              <i class="bi bi-info-circle"></i> 
+              Selecione uma ou mais categorias para filtrar
+            </small>
+          </div>
+        </div>
 
-      <div class="col-md-2">
-        <%= f.label :year, "Ano", class: "form-label" %>
-        <%= f.number_field :year, value: params[:year], class: "form-control", placeholder: "Ex: 2020", min: 1888, max: Date.current.year + 5 %>
-      </div>
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <%= f.label :year_from, "Ano (de)", class: "form-label" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
+              <%= f.number_field :year_from, 
+                  value: params[:year_from], 
+                  class: "form-control", 
+                  placeholder: "Ex: 1990",
+                  min: 1888, 
+                  max: Date.current.year + 5 %>
+            </div>
+          </div>
 
-      <div class="col-md-2">
-        <%= f.label :category_id, "Categoria", class: "form-label" %>
-        <%= f.select :category_id, 
-            options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
-            { include_blank: "Todas" },
-            class: "form-select" %>
-      </div>
+          <div class="col-md-6">
+            <%= f.label :year_to, "Ano (até)", class: "form-label" %>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-calendar-range"></i></span>
+              <%= f.number_field :year_to, 
+                  value: params[:year_to], 
+                  class: "form-control", 
+                  placeholder: "Ex: 2024",
+                  min: 1888, 
+                  max: Date.current.year + 5 %>
+            </div>
+          </div>
+        </div>
 
-      <div class="col-md-2 d-flex align-items-end gap-2">
-        <%= f.submit "Buscar", class: "btn btn-primary flex-fill" %>
-        <%= link_to "Limpar", movies_path, class: "btn btn-outline-secondary" %>
+        <div class="row g-3 mb-3">
+          <div class="col-12">
+            <%= f.label :filter_directors, "Filtrar por Diretores (múltipla escolha)", class: "form-label" %>
+            <div class="border rounded p-3 bg-light" style="max-height: 300px; overflow-y: auto;">
+              <div class="row g-2">
+                <% @all_directors.each do |director| %>
+                  <div class="col-md-3 col-sm-4 col-6">
+                    <div class="form-check">
+                      <%= check_box_tag 'filter_directors[]', 
+                          director, 
+                          params[:filter_directors]&.include?(director),
+                          class: "form-check-input",
+                          id: "filter_dir_#{director.parameterize}" %>
+                      <%= label_tag "filter_dir_#{director.parameterize}", director, class: "form-check-label" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <small class="form-text text-muted">
+              <i class="bi bi-info-circle"></i> 
+              Selecione um ou mais diretores para filtrar
+            </small>
+          </div>
+        </div>
+
+        <div class="text-center mt-3">
+          <%= f.submit "Aplicar Filtros", class: "btn btn-success btn-lg" %>
+          <%= link_to "Limpar Todos os Filtros", movies_path, class: "btn btn-outline-danger btn-lg" %>
+        </div>
       </div>
     <% end %>
   </div>
 </div>
 
+<% if @search_performed && @active_filters.any? %>
+  <div class="alert alert-info alert-dismissible fade show mb-3" role="alert">
+    <strong><i class="bi bi-filter-circle-fill"></i> Filtros ativos:</strong>
+    <ul class="mb-0 mt-2">
+      <% @active_filters.each do |filter| %>
+        <li><%= filter %></li>
+      <% end %>
+    </ul>
+    <%= link_to "Limpar todos os filtros", movies_path, class: "btn btn-sm btn-outline-primary mt-2" %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% end %>
+
 <% if @search_performed %>
-  <div class="alert alert-info mb-3">
+  <div class="alert alert-success mb-3">
     <strong>
-      <%= pluralize(@movies.total_count, "resultado encontrado", "resultados encontrados") %>
+      <i class="bi bi-check-circle-fill"></i>
+      <%= pluralize(@total_results, "resultado encontrado", "resultados encontrados") %>
     </strong>
-    <% if params[:title].present? %>
-      para o título "<%= params[:title] %>"
-    <% end %>
-    <% if params[:director].present? %>
-      com diretor "<%= params[:director] %>"
-    <% end %>
-    <% if params[:year].present? %>
-      do ano <%= params[:year] %>
-    <% end %>
-    <% if params[:category_id].present? %>
-      na categoria "<%= @categories.find(params[:category_id]).name %>"
-    <% end %>
   </div>
 <% end %>
 
 <div class="row">
   <% @movies.each do |movie| %>
     <div class="col-md-4 mb-4">
-      <div class="card h-100 shadow-sm">
+      <div class="card h-100 shadow-sm hover-shadow transition">
         <div class="card-body d-flex flex-column">
           <h5 class="card-title">
-            <%= link_to movie.title, movie_path(movie), class: "text-decoration-none" %>
+            <%= link_to movie.title, movie_path(movie), class: "text-decoration-none text-primary" %>
           </h5>
           
           <% if movie.categories.any? %>
@@ -79,16 +215,18 @@
             </div>
           <% end %>
           
-          <p class="card-text flex-grow-1"><%= truncate(movie.synopsis, length: 100) %></p>
+          <p class="card-text flex-grow-1 text-muted">
+            <%= truncate(movie.synopsis, length: 100) %>
+          </p>
           
           <div class="card-footer bg-transparent border-0 p-0 mt-auto">
             <small class="text-muted">
-              <%= movie.year %>
+              <i class="bi bi-calendar3"></i> <%= movie.year %>
               <% if movie.duration.present? %>
-                • <%= movie.duration %> min
+                • <i class="bi bi-clock"></i> <%= movie.duration %> min
               <% end %>
               <% if movie.director.present? %>
-                • <%= movie.director %>
+                <br><i class="bi bi-person-badge"></i> <%= movie.director %>
               <% end %>
             </small>
           </div>
@@ -102,11 +240,14 @@
   <div class="text-center py-5">
     <% if @search_performed %>
       <div class="alert alert-warning">
-        <h5>Nenhum filme encontrado</h5>
-        <p class="mb-0">Tente ajustar os filtros de busca ou <%= link_to "ver todos os filmes", movies_path, class: "alert-link" %>.</p>
+        <i class="bi bi-search" style="font-size: 3rem;"></i>
+        <h5 class="mt-3">Nenhum filme encontrado</h5>
+        <p class="mb-3">Tente ajustar os filtros de busca</p>
+        <%= link_to "Ver todos os filmes", movies_path, class: "btn btn-primary" %>
       </div>
     <% else %>
-      <p class="text-muted">Nenhum filme cadastrado ainda.</p>
+      <i class="bi bi-film" style="font-size: 3rem; color: #6c757d;"></i>
+      <p class="text-muted mt-3">Nenhum filme cadastrado ainda.</p>
       <% if user_signed_in? %>
         <%= link_to "Cadastrar primeiro filme", new_movie_path, class: "btn btn-primary" %>
       <% end %>
@@ -114,4 +255,6 @@
   </div>
 <% end %>
 
-<%= paginate @movies %>
+<div class="pagination-container">
+  <%= paginate @movies %>
+</div>
