@@ -1,3 +1,4 @@
+# app/controllers/movies_controller.rb
 class MoviesController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
   before_action :set_movie, only: %i[ show edit update destroy ]
@@ -6,8 +7,19 @@ class MoviesController < ApplicationController
 
   # GET /movies or /movies.json
   def index
-    @movies = Movie.includes(:categories).order(created_at: :desc).page(params[:page]).per(6)
+    @movies = Movie.includes(:categories)
+                   .by_title(params[:title])
+                   .by_director(params[:director])
+                   .by_year(params[:year])
+                   .by_category(params[:category_id])
+                   .order(created_at: :desc)
+                   .page(params[:page])
+                   .per(6)
+
     @categories = Category.ordered
+
+    @search_performed = params[:title].present? || params[:director].present? ||
+                       params[:year].present? || params[:category_id].present?
   end
 
   # GET /movies/1 or /movies/1.json
@@ -72,7 +84,7 @@ class MoviesController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
     def set_movie
       if user_signed_in? && (action_name != "show")
         @movie = current_user.movies.find(params[:id])
@@ -85,7 +97,6 @@ class MoviesController < ApplicationController
       redirect_to movies_path, alert: "Você não tem permissão para acessar este filme."
     end
 
-    # Only allow a list of trusted parameters through.
     def movie_params
       params.require(:movie).permit(:title, :synopsis, :year, :duration, :director, category_ids: [])
     end

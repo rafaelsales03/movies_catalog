@@ -8,6 +8,60 @@
   </div>
 </div>
 
+<div class="card mb-4">
+  <div class="card-body">
+    <%= form_with url: movies_path, method: :get, local: true, class: "row g-3" do |f| %>
+      <div class="col-md-3">
+        <%= f.label :title, "Título", class: "form-label" %>
+        <%= f.text_field :title, value: params[:title], class: "form-control", placeholder: "Ex: Matrix" %>
+      </div>
+
+      <div class="col-md-3">
+        <%= f.label :director, "Diretor", class: "form-label" %>
+        <%= f.text_field :director, value: params[:director], class: "form-control", placeholder: "Ex: Spielberg" %>
+      </div>
+
+      <div class="col-md-2">
+        <%= f.label :year, "Ano", class: "form-label" %>
+        <%= f.number_field :year, value: params[:year], class: "form-control", placeholder: "Ex: 2020", min: 1888, max: Date.current.year + 5 %>
+      </div>
+
+      <div class="col-md-2">
+        <%= f.label :category_id, "Categoria", class: "form-label" %>
+        <%= f.select :category_id, 
+            options_from_collection_for_select(@categories, :id, :name, params[:category_id]),
+            { include_blank: "Todas" },
+            class: "form-select" %>
+      </div>
+
+      <div class="col-md-2 d-flex align-items-end gap-2">
+        <%= f.submit "Buscar", class: "btn btn-primary flex-fill" %>
+        <%= link_to "Limpar", movies_path, class: "btn btn-outline-secondary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<% if @search_performed %>
+  <div class="alert alert-info mb-3">
+    <strong>
+      <%= pluralize(@movies.total_count, "resultado encontrado", "resultados encontrados") %>
+    </strong>
+    <% if params[:title].present? %>
+      para o título "<%= params[:title] %>"
+    <% end %>
+    <% if params[:director].present? %>
+      com diretor "<%= params[:director] %>"
+    <% end %>
+    <% if params[:year].present? %>
+      do ano <%= params[:year] %>
+    <% end %>
+    <% if params[:category_id].present? %>
+      na categoria "<%= @categories.find(params[:category_id]).name %>"
+    <% end %>
+  </div>
+<% end %>
+
 <div class="row">
   <% @movies.each do |movie| %>
     <div class="col-md-4 mb-4">
@@ -46,9 +100,16 @@
 
 <% if @movies.empty? %>
   <div class="text-center py-5">
-    <p class="text-muted">Nenhum filme cadastrado ainda.</p>
-    <% if user_signed_in? %>
-      <%= link_to "Cadastrar primeiro filme", new_movie_path, class: "btn btn-primary" %>
+    <% if @search_performed %>
+      <div class="alert alert-warning">
+        <h5>Nenhum filme encontrado</h5>
+        <p class="mb-0">Tente ajustar os filtros de busca ou <%= link_to "ver todos os filmes", movies_path, class: "alert-link" %>.</p>
+      </div>
+    <% else %>
+      <p class="text-muted">Nenhum filme cadastrado ainda.</p>
+      <% if user_signed_in? %>
+        <%= link_to "Cadastrar primeiro filme", new_movie_path, class: "btn btn-primary" %>
+      <% end %>
     <% end %>
   </div>
 <% end %>
