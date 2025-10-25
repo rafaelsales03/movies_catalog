@@ -126,6 +126,7 @@ class MoviesController < ApplicationController
       :category_id,
       :year_from,
       :year_to,
+      :locale,
       filter_categories: [],
       filter_directors: [],
       filter_tags: []
