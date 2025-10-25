@@ -70,7 +70,7 @@ Rails.application.configure do
     user_name: ENV.fetch("SENDGRID_USERNAME", "apikey"),
     password: ENV.fetch("SENDGRID_PASSWORD", ""),
     address: "smtp.sendgrid.net",
-    port: 587,
+    port: 2525,
     authentication: :plain,
     enable_starttls_auto: true
   }
