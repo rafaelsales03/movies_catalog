@@ -1,0 +1,28 @@
+<div class="mb-4">
+  <%= form.label :tag_list, t('movies.form.tags_label'), class: "form-label" %>
+  <div class="form-text mb-2 small">
+    <i class="bi bi-info-circle"></i>
+    <%= t('movies.form.tags_hint') %>
+  </div>
+
+  <div id="tags-input-container" class="tags-input-container" data-close-label="<%= t('helpers.bootstrap.close_label', default: 'Close') %>">
+    <div id="tags-list" class="tags-list"></div>
+    <input
+      type="text"
+      id="tag-input"
+      class="tag-input"
+      placeholder="<%= t('movies.form.tag_input_placeholder') %>"
+      autocomplete="off"
+      data-tag-too-short-message="<%= t('activerecord.errors.models.tag.attributes.name.too_short', count: 2) %>"
+      data-tag-too-long-message="<%= t('activerecord.errors.models.tag.attributes.name.too_long', count: 50) %>"
+      data-tag-duplicate-message="<%= t('js.tags.duplicate_error', default: 'Esta tag já foi adicionada') %>"
+      data-tag-limit-reached-message="<%= t('js.tags.limit_error', max: 20, default: 'Você pode adicionar no máximo %{max} tags') %>"
+      data-aria-remove-label="<%= t('js.tags.aria_remove_label', default: 'Remover tag') %>"
+    >
+  </div>
+
+  <%= form.hidden_field :tag_list, id: "movie_tag_list", value: movie.tag_list %>
+  <div id="tags-counter" class="tags-counter text-muted small mt-1" data-counter-format="<%= t('movies.form.tags_counter', count: '%{count}', max: '%{max}') %>">
+    <%= t('movies.form.tags_counter', count: movie.tags.count, max: 20) %>
+  </div>
+</div>

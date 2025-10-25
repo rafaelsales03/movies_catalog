@@ -1,0 +1,43 @@
+<div class="mb-3">
+  <%= form.label :poster, t('movies.form.poster_label'), class: "form-label" %>
+
+  <% if movie.persisted? && movie.poster.attached? %>
+    <div class="mb-3 current-poster-section">
+      <p class="text-muted mb-2"><%= t('movies.form.current_poster') %></p>
+      <div class="card" style="max-width: 200px;">
+        <div class="card-body p-2">
+          <%= image_tag movie.poster.variant(resize_to_limit: [200, 300]), class: "img-fluid rounded", alt: movie.title %>
+          <div class="form-check mt-2 form-switch">
+            <%= check_box_tag 'remove_poster_flag', "1", false, class: "form-check-input", id: "remove_poster_checkbox", role: "switch" %>
+            <%= label_tag :remove_poster_checkbox, t('movies.form.remove_poster'), class: "form-check-label small" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%= form.file_field :poster,
+      class: "form-control",
+      accept: "image/png,image/jpeg,image/jpg,image/webp",
+      id: "poster_input",
+      data: {
+        invalid_format_message: t('activerecord.errors.models.movie.attributes.poster.content_type'),
+        size_limit_message: t('activerecord.errors.models.movie.attributes.poster.size'),
+        load_error_message: t('js.poster_preview.load_error', default: 'Erro ao carregar a imagem. Tente novamente.')
+      }
+  %>
+  <div class="form-text small">
+    <i class="bi bi-info-circle"></i>
+    <%= t('movies.form.poster_formats') %> <%= t('movies.form.poster_size') %>
+  </div>
+
+  <div id="poster_preview" class="mt-3" style="display: none; max-width: 200px;">
+    <p class="text-muted mb-1"><%= t('movies.form.poster_preview') %></p>
+    <div class="card">
+      <div class="card-body p-2">
+        <img id="poster_preview_image" class="img-fluid rounded" alt="<%= t('movies.form.poster_preview') %>">
+      </div>
+    </div>
+  </div>
+   <%= hidden_field_tag 'movie[remove_poster]', '0', id: 'hidden_remove_poster' %>
+</div>

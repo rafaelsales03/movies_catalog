@@ -1,0 +1,10 @@
+<% if !search_performed %>
+  <div class="text-center py-5">
+      <i class="bi bi-film" style="font-size: 3rem; color: #6c757d;"></i>
+      <p class="text-muted mt-3"><%= t('movies.index.no_movies_yet') %></p>
+      <% if user_signed_in? %>
+        <%= link_to t('movies.index.add_first_movie'), new_movie_path, class: "btn btn-primary" %>
+      <% end %>
+  </div>
+<% else %>
+<% end %>

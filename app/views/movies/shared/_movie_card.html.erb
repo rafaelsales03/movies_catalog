@@ -1,0 +1,67 @@
+<div class="col">
+  <div class="card h-100 shadow-sm hover-shadow transition">
+
+    <% if movie.poster.attached? %>
+      <%= link_to movie_path(movie) do %>
+        <%= image_tag movie.poster.variant(resize_to_fill: [400, 300]), class: "card-img-top movie-poster-index", alt: movie.title, loading: "lazy" %>
+      <% end %>
+    <% else %>
+      <%= link_to movie_path(movie) do %>
+        <div class="card-img-top movie-poster-placeholder d-flex align-items-center justify-content-center bg-secondary text-white">
+          <i class="bi bi-film" style="font-size: 3rem;"></i>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">
+        <%= link_to movie.title, movie_path(movie), class: "text-decoration-none text-primary stretched-link" %>
+      </h5>
+
+      <% if movie.categories.any? %>
+        <div class="mb-2">
+          <% movie.categories.limit(3).ordered.each do |category| %>
+            <span class="badge bg-primary me-1"><%= category.name %></span>
+          <% end %>
+          <% if movie.categories.count > 3 %>
+             <span class="badge bg-light text-dark border me-1">+<%= movie.categories.count - 3 %></span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if movie.tags.any? %>
+        <div class="movie-tags mb-2">
+          <% movie.tags.limit(3).ordered.each do |tag| %>
+            <span class="movie-tag">
+              <i class="bi bi-tag-fill"></i>
+              <%= tag.name %>
+            </span>
+          <% end %>
+          <% if movie.tags.count > 3 %>
+            <span class="movie-tag bg-light text-dark border">
+              +<%= movie.tags.count - 3 %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+
+      <p class="card-text small text-muted flex-grow-1">
+        <%= truncate(movie.synopsis, length: 80) %>
+      </p>
+
+      <div class="mt-auto border-top pt-2">
+        <small class="text-muted d-block">
+          <i class="bi bi-calendar3"></i> <%= movie.year %>
+          <% if movie.duration.present? %>
+            <span class="mx-1">•</span> <i class="bi bi-clock"></i> <%= movie.duration %> <%= t('movies.index.duration_unit') %>
+          <% end %>
+        </small>
+        <% if movie.director.present? %>
+          <small class="text-muted d-block mt-1">
+            <i class="bi bi-person-badge"></i> <%= movie.director %>
+          </small>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

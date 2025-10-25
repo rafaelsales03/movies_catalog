@@ -1,0 +1,39 @@
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <%= form.label :category_ids, t('movies.form.categories_label'), class: "form-label mb-0" %>
+    <%= link_to t('movies.form.manage_categories'), categories_path, class: "btn btn-sm btn-outline-secondary", target: "_blank", rel: "noopener" %>
+  </div>
+
+  <% if categories.any? %>
+    <div class="border rounded p-3 bg-light category-selection-box">
+      <div class="row g-2"
+           id="categories-container"
+           data-selected-label="<%= t('movies.form.selected_categories_title') %>"
+           data-none-selected-label="<%= t('movies.form.no_category_selected') %>" >
+        <% categories.each do |category| %>
+          <div class="col-md-3 col-sm-4 col-6">
+            <label class="category-checkbox-label w-100">
+              <%= check_box_tag 'movie[category_ids][]',
+                  category.id,
+                  movie.category_ids.include?(category.id),
+                  class: "category-checkbox",
+                  id: "category_#{category.id}" %>
+              <span class="category-button <%= 'active' if movie.category_ids.include?(category.id) %>">
+                <%= category.name %>
+              </span>
+            </label>
+          </div>
+        <% end %>
+      </div>
+      <%= hidden_field_tag 'movie[category_ids][]', '' %>
+    </div>
+
+    <div id="selected-categories" class="mt-2 text-muted small">
+       <strong><%= t('movies.form.selected_categories_title') %></strong> <span id="selected-list"><%= movie.categories.ordered.map(&:name).join(", ").presence || t('movies.form.no_category_selected') %></span>
+    </div>
+  <% else %>
+    <div class="alert alert-warning small">
+      <i class="bi bi-exclamation-triangle"></i> <%= t('movies.form.no_categories_yet') %> <%= link_to t('movies.form.create_first_category'), new_category_path, target: "_blank", rel: "noopener" %>
+    </div>
+  <% end %>
+</div>

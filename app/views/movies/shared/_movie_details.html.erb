@@ -1,0 +1,79 @@
+<div class="card shadow-sm mb-4">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <% if movie.poster.attached? %>
+        <%= image_tag movie.poster.variant(resize_to_limit: [400, 600]), class: "img-fluid rounded-start movie-poster-show", alt: movie.title %>
+      <% else %>
+        <div class="movie-poster-placeholder-show d-flex align-items-center justify-content-center bg-light text-secondary rounded-start">
+          <i class="bi bi-film" style="font-size: 5rem;"></i>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="col-md-8">
+      <div class="card-body d-flex flex-column h-100">
+        <h1 class="card-title mb-3"><%= movie.title %></h1>
+
+        <% if movie.categories.any? %>
+          <div class="mb-3">
+            <% movie.categories.ordered.each do |category| %>
+              <span class="badge bg-primary me-1 mb-1" style="font-size: 0.9rem; padding: 0.4em 0.8em;">
+                <%= category.name %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if movie.tags.any? %>
+          <div class="mb-3 movie-tags-show">
+            <h6 class="text-muted mb-2 small"><i class="bi bi-tags-fill"></i> <%= t('movies.show.tags_title') %></h6>
+            <% movie.tags.ordered.each do |tag| %>
+              <span class="badge bg-light text-dark border me-1 mb-1">
+                 <i class="bi bi-tag-fill small"></i> <%= tag.name %>
+              </span>
+            <% end %>
+          </div>
+        <% end %>
+
+        <div class="mb-3">
+          <h5 class="small text-muted"><%= t('movies.show.synopsis') %></h5>
+          <p class="card-text"><%= simple_format(movie.synopsis) %></p>
+        </div>
+
+        <div class="row small mb-3">
+          <% if movie.year.present? %>
+            <div class="col-6 col-sm-4 mb-2">
+              <strong><i class="bi bi-calendar3"></i> <%= t('movies.show.year_label') %></strong>
+              <span class="text-muted"><%= movie.year %></span>
+            </div>
+          <% end %>
+          <% if movie.duration.present? %>
+            <div class="col-6 col-sm-4 mb-2">
+              <strong><i class="bi bi-clock"></i> <%= t('movies.show.duration_label') %></strong>
+              <span class="text-muted"><%= movie.duration %> <%= t('movies.index.duration_unit') %></span>
+            </div>
+          <% end %>
+          <% if movie.director.present? %>
+            <div class="col-12 col-sm-4 mb-2">
+              <strong><i class="bi bi-person-badge"></i> <%= t('movies.show.director_label') %></strong>
+              <span class="text-muted"><%= movie.director %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <% if user_signed_in? && movie.user == current_user %>
+          <div class="mt-auto pt-3 border-top">
+            <div class="d-flex gap-2">
+              <%= link_to raw(t('movies.show.edit_button')), edit_movie_path(movie), class: "btn btn-sm btn-outline-primary" %>
+              <%= button_to raw(t('movies.show.delete_button')),
+                   movie,
+                   method: :delete,
+                   class: "btn btn-sm btn-outline-danger",
+                   form: { data: { turbo_confirm: t('movies.show.delete_confirm') } } %>
+             </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+<% if search_performed %>
+  <div class="alert alert-success mb-3">
+    <strong>
+      <i class="bi bi-check-circle-fill"></i>
+      <%= t('movies.index.search_success_message', count: total_results, results_text: t(total_results == 1 ? 'movies.index.results' : 'movies.index.results_plural')) %>
+    </strong>
+     <% unless movies.any? %>
+       <p class="mb-0 mt-2"><%= t('movies.index.no_results_adjust', clear_link: t('movies.index.clear_all_filters_link')) %></p>
+    <% end %>
+  </div>
+<% end %>
