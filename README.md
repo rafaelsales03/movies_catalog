@@ -30,6 +30,11 @@ O projeto implementa as seguintes funcionalidades, divididas entre áreas públi
 * **Internacionalização (I18n):** Suporte completo a múltiplos idiomas (Português Brasileiro e Inglês).
 * **Testes Automatizados Básicos:** Configuração e implementação de testes unitários (Models) e de requisição (Requests) utilizando RSpec e FactoryBot.
 
+**🚧 Funcionalidades Não Implementadas**
+
+* Importação em massa via CSV com Sidekiq.
+* Busca e preenchimento de dados via IA.
+
 ## 🛠️ Tecnologias Utilizadas
 
 * **Backend:** Ruby `3.4.6`, Ruby on Rails `8.0.3`
@@ -62,7 +67,6 @@ O projeto implementa as seguintes funcionalidades, divididas entre áreas públi
     ```bash
     bundle install
     ```
-   
 
 3.  **Configure o Banco de Dados:**
     * Certifique-se que seu servidor PostgreSQL está rodando.
@@ -72,7 +76,6 @@ O projeto implementa as seguintes funcionalidades, divididas entre áreas públi
         bin/rails db:prepare
         bin/rails db:seed
         ```
-       
 
 4.  **Variáveis de Ambiente**
     * Crie um arquivo `.env` na raiz do projeto (este arquivo está no `.gitignore`).
@@ -135,5 +138,3 @@ Durante o desenvolvimento, buscou-se seguir boas práticas como:
 * **Código Limpo e Legível:** Esforço para manter o código organizado, bem formatado e fácil de entender.
 * **Testes Automatizados:** Implementação de testes básicos para garantir a robustez das funcionalidades core.
 * **Versionamento Semântico (Commits):** Commits claros e descritivos no Git.
-
----
