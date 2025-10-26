@@ -42,7 +42,7 @@ O projeto implementa as seguintes funcionalidades, divididas entre áreas públi
 * **Frontend:** HTML, CSS, JavaScript (via Importmap), Bootstrap 5, StimulusJS
 * **Autenticação:** Devise
 * **Paginação:** Kaminari
-* **Upload de Arquivos:** Active Storage (Rails nativo)
+* **Upload de Arquivos:** Active Storage (Rails nativo) configurado com AWS S3 para produção
 * **Testes:** RSpec Rails, FactoryBot, Database Cleaner
 * **Servidor de Aplicação:** Puma
 * **Deployment:** Configurado para Render (via `render.yaml`)
@@ -115,10 +115,16 @@ Para rodar a suíte de testes RSpec:
 
 A aplicação está configurada para deploy na plataforma **Render** através do arquivo `render.yaml`.
 
+**Importante:** Devido ao sistema de arquivos efêmero do Render, o Active Storage **deve** ser configurado para usar um serviço de armazenamento externo em produção (como AWS S3, Google Cloud Storage, etc.) para que os uploads de arquivos persistam entre deploys. A configuração padrão neste projeto usa AWS S3.
+
 **Variáveis de Ambiente Essenciais no Render:**
 
 * `DATABASE_URL`: Fornecida automaticamente pelo serviço de banco de dados do Render.
 * `RAILS_MASTER_KEY`: Conteúdo do arquivo `config/master.key` (adicionar como Secret).
+* `AWS_ACCESS_KEY_ID`: Chave de acesso da AWS (adicionar via `credentials.yml.enc` ou como Secret).
+* `AWS_SECRET_ACCESS_KEY`: Chave secreta da AWS (adicionar na `credentials.yml.enc` ou como Secret).
+* `AWS_REGION`: A região do seu bucket S3 (ex: `sa-east-1`).
+* `AWS_BUCKET`: O nome do seu bucket S3 (ex: `movies-catalog`).
 * `SENDGRID_USERNAME`: `apikey` (adicionar como Secret).
 * `SENDGRID_PASSWORD`: Sua chave de API do SendGrid (adicionar como Secret).
 * `APP_DOMAIN`: O domínio principal da sua aplicação no Render (ex: `movies-catalog.onrender.com`).
