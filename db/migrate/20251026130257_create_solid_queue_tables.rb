@@ -111,6 +111,5 @@ class CreateSolidQueueTables < ActiveRecord::Migration[8.0]
 
       t.index [ :task_key, :run_at ], unique: true
     end
-
   end
 end
