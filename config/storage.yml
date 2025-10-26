@@ -14,6 +14,8 @@ amazon:
   region: sa-east-1
   bucket: movies-catalog
   public: true
+  upload:
+    acl: nil
 
 # Remember not to checkin your GCS keyfile to a repository
 # google:
